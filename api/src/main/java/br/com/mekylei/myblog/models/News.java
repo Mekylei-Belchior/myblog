@@ -1,6 +1,8 @@
 package br.com.mekylei.myblog.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -26,7 +28,14 @@ public class News {
     @JsonBackReference
     private List<Comment> comment = new ArrayList<>();
 
-    public News() {}
+    @Fetch(FetchMode.SELECT)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "news_tags", joinColumns = {
+            @JoinColumn(name = "fk_news")}, inverseJoinColumns = {@JoinColumn(name = "fk_tag")})
+    private List<Tag> tag;
+
+    public News() {
+    }
 
     public Long getId() {
         return id;
@@ -74,6 +83,14 @@ public class News {
 
     public void setComment(List<Comment> comment) {
         this.comment = comment;
+    }
+
+    public List<Tag> getTag() {
+        return tag;
+    }
+
+    public void setTag(List<Tag> tag) {
+        this.tag = tag;
     }
 
     @Override
