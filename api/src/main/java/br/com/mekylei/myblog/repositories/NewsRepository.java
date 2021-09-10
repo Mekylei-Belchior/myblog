@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface NewsRepository extends JpaRepository<News, Long> {
 
     Page<News> findByTitle(Pageable pageable, String title);
+
+    Page<News> findByTags(Pageable pageable, String tagName);
 }

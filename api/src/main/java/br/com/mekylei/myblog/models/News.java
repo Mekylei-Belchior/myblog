@@ -1,8 +1,6 @@
 package br.com.mekylei.myblog.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -24,15 +22,15 @@ public class News {
     @Lob
     private String content;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "news", fetch = FetchType.LAZY)
     @JsonBackReference
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "news", fetch = FetchType.LAZY)
     private List<Comment> comment = new ArrayList<>();
 
-    @Fetch(FetchMode.SELECT)
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "news_tags", joinColumns = {
-            @JoinColumn(name = "fk_news")}, inverseJoinColumns = {@JoinColumn(name = "fk_tag")})
-    private List<Tag> tag;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name="topic_tags",
+            joinColumns = @JoinColumn(name = "id"))
+    @Column(name="topic_tags")
+    private List<String> tags;
 
     public News() {
     }
@@ -53,20 +51,20 @@ public class News {
         this.title = title;
     }
 
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-
     public String getAuthor() {
         return author;
     }
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
     }
 
     public String getContent() {
@@ -85,12 +83,12 @@ public class News {
         this.comment = comment;
     }
 
-    public List<Tag> getTag() {
-        return tag;
+    public List<String> getTags() {
+        return tags;
     }
 
-    public void setTag(List<Tag> tag) {
-        this.tag = tag;
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 
     @Override

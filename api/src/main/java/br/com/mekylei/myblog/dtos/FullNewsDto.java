@@ -13,7 +13,8 @@ public class FullNewsDto {
     private String author;
     private LocalDateTime date;
     private String content;
-    private List<FullCommentDto> comment;
+    private List<FullCommentDto> comment = new ArrayList<>();
+    private List<String> tag = new ArrayList<>();
 
     public FullNewsDto(News news) {
         this.id = news.getId();
@@ -21,55 +22,35 @@ public class FullNewsDto {
         this.author = news.getAuthor();
         this.date = news.getDate();
         this.content = news.getContent();
-        this.comment = new ArrayList<>();
         this.comment.addAll(news.getComment().stream().map(FullCommentDto::new).collect(Collectors.toList()));
+        this.tag.addAll(news.getTags());
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
     public LocalDateTime getDate() {
         return date;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
     }
 
     public String getContent() {
         return content;
     }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
-
     public List<FullCommentDto> getComment() {
         return comment;
     }
 
-    public void setComment(List<FullCommentDto> comment) {
-        this.comment = comment;
+    public List<String> getTag() {
+        return tag;
     }
 }

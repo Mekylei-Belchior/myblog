@@ -20,8 +20,8 @@ public class Comment {
     private LocalDateTime date = LocalDateTime.now();
     private String author;
 
-    @ManyToOne
     @JsonManagedReference
+    @ManyToOne
     private News news;
 
     public Long getId() {

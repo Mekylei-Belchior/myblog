@@ -83,30 +83,25 @@ public class NewsController {
     }
 
     /**
-     * Get all news or a specific news
+     * Get all news by tag name
      *
-     * @param title when informed, gets the news by the title
+     * @param tag topic tag name
      * @param pageable pagination
-     * @return all news paged or a specific news
+     * @return all news paged
      */
-    @GetMapping
-    public Page<News> getNews(@RequestParam(required = false) String title,
+    @RequestMapping(value = "/topic", method = RequestMethod.GET)
+    public Page<News> getNewsByTag(@RequestParam( value = "tag", required = false) String tag,
                               @PageableDefault(
                                       page = 0,
-                                      size = 10,
+                                      size = 5,
                                       sort = "id",
                                       direction = Sort.Direction.DESC) Pageable pageable) {
-
-        if (title != null) {
-            /* When title parameter has passed */
-            return this.newsRepository.findByTitle(pageable, title);
-        }
-
-        return this.newsRepository.findAll(pageable);
+        System.out.println(tag);
+            return this.newsRepository.findByTags(pageable, tag);
     }
 
     /**
-     * Get news with all the information
+     * Get news with all information
      *
      * @param id identification of the news
      * @return An object with all information about the news or status 404
@@ -120,5 +115,28 @@ public class NewsController {
         }
 
         return ResponseEntity.notFound().build();
+    }
+
+    /**
+     * Get all news or a specific news
+     *
+     * @param title when informed, gets the news by the title
+     * @param pageable pagination
+     * @return all news paged or a specific news
+     */
+    @GetMapping()
+    public Page<News> getNews(@RequestParam(required = false) String title,
+                              @PageableDefault(
+                                      page = 0,
+                                      size = 10,
+                                      sort = "id",
+                                      direction = Sort.Direction.DESC) Pageable pageable) {
+
+        if (title != null) {
+            /* When title parameter has passed */
+            return this.newsRepository.findByTitle(pageable, title);
+        }
+
+        return this.newsRepository.findAll(pageable);
     }
 }
