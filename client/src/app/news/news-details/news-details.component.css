@@ -1,0 +1,66 @@
+.container {
+  color: #353535;
+  margin-top: 5%;
+  min-height: 800px;
+}
+
+h1 {
+  font-size: 3rem;
+  font-weight: 1rem;
+}
+
+h3 {
+  margin-top: 2%;
+}
+
+.button-post-action {
+  display: flex;
+  justify-content: space-between;
+  width: 120px;
+  padding: 2%;
+}
+
+.button-add-comment {
+  display: flex;
+  justify-content: flex-start;
+  padding: 2%;
+}
+
+.container .card {
+  background-color: #3535352c;
+  margin-top: 2%;
+  height: auto;
+}
+
+.content {
+  font-size: 1.3rem;
+  max-width: 80%;
+  white-space: pre-line;
+  display: inline-block;
+  text-align: justify;
+  margin-top: 1%;
+  margin-bottom: 5%;
+}
+
+.comment-title {
+  font-size: 0.9rem;
+}
+
+.vertical-middle {
+  vertical-align: middle;
+}
+
+.coments-painel {
+  margin-top: 1%;
+  margin-bottom: 3%;
+  min-width: 80vw;
+  max-width: 80vw;
+}
+
+.coment-content-painel {
+  min-height: 30vh;
+}
+
+.tag-field {
+  padding-top: 1%;
+}

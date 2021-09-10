@@ -1,0 +1,47 @@
+.container {
+  min-height: 1200px;
+  top: 0;
+}
+
+.content {
+  background-image: url('./../../assets/img/home.jpg');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  padding-top: 15%;
+  height: 1200px;
+  max-width: 100%;
+  text-align: center;
+  color: #fff;
+}
+
+.content h1 {
+  font-size: 5vw;
+}
+
+.content h3 {
+  font-size: 2vw;
+  padding-top: 5%;
+}
+
+@media(width: 500px) {
+  .container {
+    min-height: 720px;
+    top: 0;
+  }
+
+  .content {
+    height: 720px;
+  }
+}
+
+@media(width: 360px) {
+  .container {
+    min-height: 540px;
+    top: 0;
+  }
+
+  .content {
+    height: 540px;
+  }
+}
+

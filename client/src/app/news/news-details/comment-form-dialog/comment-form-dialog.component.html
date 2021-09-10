@@ -1,0 +1,26 @@
+<h1 mat-dialog-title>Novo comentário</h1>
+
+<div mat-dialog-content>
+  <form class="form" [formGroup]="commentForm">
+    <mat-form-field class="full-width">
+      <mat-label>Autor</mat-label>
+      <input matInput formControlName="author" />
+    </mat-form-field>
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Texto do comentário</mat-label>
+      <textarea
+        matInput
+        formControlName="comment"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="16"
+        placeholder="Redija o seu comentário"
+      ></textarea>
+    </mat-form-field>
+  </form>
+</div>
+
+<div mat-dialog-actions>
+  <button mat-button color="primary" (click)="createComment()">Publicar</button>
+  <button mat-button (click)="cancel()">Cancelar</button>
+</div>
+

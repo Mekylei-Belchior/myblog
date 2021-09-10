@@ -1,0 +1,91 @@
+<div class="container">
+  <div
+    *ngIf="news$ | async as news"
+    fxLayout="column"
+    fxLayoutAlign="space-between center"
+  >
+    <h1>
+      <strong>{{ news.title }}</strong>
+    </h1>
+    <h3>
+      <small>por </small>
+      <strong>{{ news.author }}</strong>
+      <small> em {{ news.date | date: "dd 'de' MMMM 'de' yyyy" }}</small>
+    </h3>
+
+    <div class="button-post-action">
+      <button
+        mat-mini-fab
+        color="secondary"
+        matTooltip="Editar a postagem"
+        (click)="editNewsForm()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button
+        mat-mini-fab
+        color="secondary"
+        matTooltip="Deletar a postagem"
+        (click)="deletePost()"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+
+    <div class="content">
+      <p>
+        {{ news.content }}
+      </p>
+      <div class="tag-field">
+        <app-tag-field [tags]="news.tag"></app-tag-field>
+      </div>
+    </div>
+
+    <div class="coments-painel">
+      <mat-accordion>
+        <mat-expansion-panel [expanded]="expandedPanel">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <strong
+                >Comentários ({{ news.comment.length }})</strong
+              ></mat-panel-title
+            >
+          </mat-expansion-panel-header>
+          <div class="coment-content-painel">
+            <hr />
+            <div class="button-add-comment">
+              <button
+                mat-mini-fab
+                color="secondary"
+                matTooltip="Adicionar comentário"
+                (click)="addCommentForm()"
+              >
+                <mat-icon>add_comment</mat-icon>
+              </button>
+            </div>
+            <div class="coments-area">
+              <mat-card
+                class="card"
+                *ngFor="let comment of news.comment; trackBy: identify"
+              >
+                <mat-card-header>
+                  <mat-card-title>
+                    <div class="comment-title">
+                      {{ comment.author }} -
+                      <small>
+                        <em>{{ news.date | date: "dd/MM/yyyy HH:mm:ss" }}</em>
+                      </small>
+                    </div>
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <p>{{ comment.comment }}</p>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+</div>

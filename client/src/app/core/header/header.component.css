@@ -1,0 +1,22 @@
+.spacer {
+  flex: 1 1 auto;
+}
+
+.toolbar {
+  background: #212121;
+}
+
+.toolbar-row {
+  font-size: 1.5rem;
+  height: 85px;
+}
+
+.toolbar-option-button {
+  padding: 0.5%;
+  color: rgb(233, 232, 232);
+}
+
+.logo {
+  font-family: "Open Sans", sans-serif;
+  color: #fff;
+}

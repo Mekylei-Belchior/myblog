@@ -1,0 +1,15 @@
+.spacer {
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+.footer {
+  background-color: #212121;
+  position: relative;
+  bottom: 0;
+  height: 100px;
+  font-family: "Open Sans", sans-serif;
+  font-size: 0.9rem;
+  color: #fff;
+}

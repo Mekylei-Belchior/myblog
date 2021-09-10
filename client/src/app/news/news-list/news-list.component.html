@@ -1,0 +1,71 @@
+<div [ngClass]="length > 0 ? 'container' : 'container-no-news'">
+  <div class="header" *ngIf="length > 0">
+    <h1><strong>POSTAGENS PUBLICADAS</strong></h1>
+  </div>
+
+  <div class="add">
+    <button
+      mat-raised-button
+      color="primary"
+      matTooltip="Cria uma nova postagem"
+      (click)="addNews()"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+
+  <div
+    class="not-found-news"
+    fxLayout="column"
+    fxLayoutAlign="center center"
+    *ngIf="length === 0"
+  >
+    <h1><strong>Nenhuma postagem criada!</strong></h1>
+    <img
+      src="./../../../assets/img/sorry.png"
+      alt="Imagem de um gato pedindo desculpas"
+    />
+  </div>
+
+  <div fxLayout="column" fxLayoutAlign="space-between center">
+    <ng-container *ngIf="length > 0">
+      <mat-card class="card" *ngFor="let news of listOfNews">
+        <mat-card-header>
+          <div mat-card-avatar class="header-card-marker">
+            <mat-icon>article</mat-icon>
+          </div>
+          <mat-card-title>{{ news.title }}</mat-card-title>
+          <mat-card-subtitle>
+            {{ news.author }} -
+            <small
+              ><em>{{ news.date | date: "dd/MM/yyyy HH:mm:ss" }}</em></small
+            >
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ news.content.substring(0, 500) + "..." }}</p>
+        </mat-card-content>
+        <app-tag-field [tags]="news.tags"></app-tag-field>
+        <mat-card-actions align="end">
+          <button
+            [routerLink]="['/postagem', news.id]"
+            mat-button
+            color="secondary"
+            matTooltip="Acessar a postagem"
+          >
+            LEIA MAIS
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <div class="paginator" *ngIf="length > 0">
+        <mat-paginator
+          [length]="length"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="pageSizeOptions"
+        >
+        </mat-paginator>
+      </div>
+    </ng-container>
+  </div>
+</div>
