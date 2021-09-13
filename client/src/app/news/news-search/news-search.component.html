@@ -1,31 +1,22 @@
-<div [ngClass]="length > 0 ? 'container' : 'container-no-news'">
-  <div class="header" *ngIf="length > 0">
-    <h1><strong>POSTAGENS PUBLICADAS</strong></h1>
-  </div>
-
-  <div class="add">
-    <button
-      mat-raised-button
-      color="primary"
-      matTooltip="Cria uma nova postagem"
-      (click)="addNews()"
-    >
-      <mat-icon>add</mat-icon>
-    </button>
+<div [ngClass]="length > 0 ? 'container' : 'container-no-result'">
+  <div class="searching-result" *ngIf="length > 0">
+    <h1>
+      RESULTADO DA BUSCA: <strong>({{ length }})</strong> OCORRÊNCIA(S)
+    </h1>
   </div>
 
   <div
-    class="not-found-news"
-    fxLayout="column"
-    fxLayoutAlign="center center"
-    *ngIf="length === 0"
-  >
-    <h1><strong>Nenhuma postagem criada!</strong></h1>
-    <img
-      src="./../../../assets/img/sorry.png"
-      alt="Imagem de um gato pedindo desculpas"
-    />
-  </div>
+  class="no-result"
+  fxLayout="column"
+  fxLayoutAlign="center center"
+  *ngIf="length === 0"
+>
+  <h1><strong>Nenhuma ocorrência para: </strong><i>{{ title }}</i></h1>
+  <img
+    src="./../../../assets/img/sorry.png"
+    alt="Imagem de um gato pedindo desculpas"
+  />
+</div>
 
   <div fxLayout="column" fxLayoutAlign="space-between center">
     <ng-container *ngIf="length > 0">

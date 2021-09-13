@@ -20,7 +20,7 @@
         matTooltip="Editar a postagem"
         (click)="editNewsForm()"
       >
-        <mat-icon>edit</mat-icon>
+        <mat-icon class="edit">edit</mat-icon>
       </button>
       <button
         mat-mini-fab
@@ -28,14 +28,12 @@
         matTooltip="Deletar a postagem"
         (click)="deletePost()"
       >
-        <mat-icon>delete</mat-icon>
+        <mat-icon class="delete">delete</mat-icon>
       </button>
     </div>
 
     <div class="content">
-      <p>
-        {{ news.content }}
-      </p>
+      <p>{{ news.content }}</p>
       <div class="tag-field">
         <app-tag-field [tags]="news.tag"></app-tag-field>
       </div>
@@ -60,13 +58,13 @@
                 matTooltip="Adicionar comentário"
                 (click)="addCommentForm()"
               >
-                <mat-icon>add_comment</mat-icon>
+                <mat-icon class="add-comment">add_comment</mat-icon>
               </button>
             </div>
             <div class="coments-area">
               <mat-card
                 class="card"
-                *ngFor="let comment of news.comment; trackBy: identify"
+                *ngFor="let comment of news.comment"
               >
                 <mat-card-header>
                   <mat-card-title>

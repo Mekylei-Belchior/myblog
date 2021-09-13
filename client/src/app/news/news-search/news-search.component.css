@@ -1,0 +1,51 @@
+.container {
+  margin-top: 2%;
+  min-height: 1200px;
+}
+
+.container-no-result {
+  margin-top: 2%;
+  min-height: 800px;
+  font-size: 2rem;
+}
+
+.searching-result {
+  display: flex;
+  justify-content: center;
+  margin-left: 2%;
+  color: #353436;
+}
+
+.add {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 1%;
+}
+
+.card {
+  margin-top: 2%;
+  width: 50%;
+  height: auto;
+}
+
+.header-card-marker {
+  background-image: url("./../../../assets/icons/Article.ico");
+  background-size: cover;
+}
+
+.paginator {
+  display: flex;
+  justify-content: center;
+  size: 50%;
+  margin-top: 5%;
+}
+
+.not-found-news {
+  margin-top: 5%;
+  font-size: 2em;
+}
+
+img {
+  height: 50%;
+  width: 25%;
+}

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
+import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
 
-import { CommentResponse } from './../../shared/interfaces/comment.interface';
 import { FullNews } from './../../shared/interfaces/fullNews.interface';
 import { NewsService } from './../news.service';
 import { CommentFormDialogComponent } from './comment-form-dialog/comment-form-dialog.component';
@@ -24,8 +24,7 @@ export class NewsDetailsComponent implements OnInit {
   constructor(
     private newsService: NewsService,
     private detailsService: NewsDetailsService,
-    private activateRoute: ActivatedRoute,
-    private router: Router
+    private activateRoute: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -37,28 +36,39 @@ export class NewsDetailsComponent implements OnInit {
     });
   }
 
+  /**
+   * Open the dialog window to add a new comment
+   */
   public addCommentForm(): void {
-    this.detailsService.callForm(CommentFormDialogComponent, this.fullNews);
+    this.detailsService.callForm(
+      CommentFormDialogComponent,
+      this.fullNews,
+      this
+    );
   }
 
+  /**
+   * Open the dialog window to update the news informations
+   */
   public editNewsForm(): void {
-    this.detailsService.callForm(EditFormDialogComponent, this.fullNews);
+    this.detailsService.callForm(EditFormDialogComponent, this.fullNews, this);
   }
 
+  /**
+   * Call the service handler to delete a news
+   */
   public deletePost(): void {
-    if (confirm('Deseja prosseguir com a exclusão da postagem?')) {
-      this.newsService.delete(this.postId).subscribe(
-        () => {
-          this.router.navigate(['/postagem']);
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
-    }
+    this.detailsService.delete(ConfirmDialogComponent, this.postId);
   }
 
-  public identify(index: number, comment: CommentResponse): number {
-    return comment.id;
+  /**
+   * Update the page information after edit the news or insert a new comment
+   */
+  public updateData(): void {
+    this.news$ = this.newsService.getNewsById(this.postId);
+
+    this.news$.subscribe((news) => {
+      this.fullNews = news;
+    });
   }
 }

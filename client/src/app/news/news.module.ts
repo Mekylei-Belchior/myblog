@@ -11,6 +11,7 @@ import { NewsRoutingModule } from './news-routing.module';
 import { NewsComponent } from './news.component';
 import { NewsService } from './news.service';
 import { EditFormDialogComponent } from './news-details/edit-form-dialog/edit-form-dialog.component';
+import { NewsSearchComponent } from './news-search/news-search.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { EditFormDialogComponent } from './news-details/edit-form-dialog/edit-fo
     NewsDetailsComponent,
     CommentFormDialogComponent,
     EditFormDialogComponent,
+    NewsSearchComponent,
   ],
   imports: [CommonModule, NewsRoutingModule, ReactiveFormsModule, SharedModule],
   exports: [NewsListComponent, NewsComponent],

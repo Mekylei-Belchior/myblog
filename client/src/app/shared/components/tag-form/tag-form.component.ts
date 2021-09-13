@@ -30,11 +30,15 @@ export class TagFormComponent implements OnInit {
     });
   }
 
+  /**
+   * Add a new topic
+   * @param event The MatChipInputEvent
+   */
   public add(event: MatChipInputEvent): void {
     const input = event.input;
     const value = event.value;
 
-    // Add a new topic
+    // Add
     if ((value || '').trim()) {
       this.topics.push({ name: value.trim() });
       this.newTopicEvent.emit(value.trim());
@@ -46,6 +50,10 @@ export class TagFormComponent implements OnInit {
     }
   }
 
+  /**
+   * Remove topics
+   * @param topic The topic that will be removed
+   */
   public remove(topic: Topic): void {
     const index = this.topics.indexOf(topic);
     this.removeTopicEvent.emit(topic.name);

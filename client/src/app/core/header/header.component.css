@@ -1,22 +1,30 @@
-.spacer {
-  flex: 1 1 auto;
-}
-
 .toolbar {
-  background: #212121;
-}
-
-.toolbar-row {
-  font-size: 1.5rem;
+  display: flex;
+  justify-content: center;
+  background-color: #212121;
   height: 85px;
-}
-
-.toolbar-option-button {
-  padding: 0.5%;
-  color: rgb(233, 232, 232);
 }
 
 .logo {
   font-family: "Open Sans", sans-serif;
   color: #fff;
+  padding-right: 2%;
+}
+
+.toolbar-row {
+  font-size: 1.5rem;
+}
+
+.toolbar-option-button {
+  padding-right: 2%;
+  color: #e9e8e8;
+}
+
+.spacer {
+  flex: 1 1 auto;
+  padding: 3%;
+}
+
+.search {
+  justify-content: flex-end;
 }

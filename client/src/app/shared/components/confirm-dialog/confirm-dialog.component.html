@@ -1,0 +1,12 @@
+<div class="container">
+  <h1 mat-dialog-title>{{ title }}</h1>
+
+  <div mat-dialog-content>
+    <p>{{ message }}</p>
+  </div>
+
+  <div mat-dialog-actions>
+    <button mat-button color="primary" (click)="confirm()">Sim</button>
+    <button mat-button cdkFocusInitial color="warn" (click)="cancel()">Não</button>
+  </div>
+</div>

@@ -1,5 +1,3 @@
-import { Topics } from './../../interfaces/topic';
-import { Post } from './../../interfaces/ResponseNews.interface';
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({

@@ -1,5 +1,5 @@
 <header>
-  <mat-toolbar class="toolbar" mat-elevation-z4>
+  <mat-toolbar class="toolbar">
     <mat-toolbar-row class="toolbar-row">
       <span class="logo"><strong> MYBLOG</strong></span>
       <button class="toolbar-option-button" mat-button (click)="goHome()">
@@ -9,6 +9,9 @@
         Postagens
       </button>
       <span class="spacer"></span>
+      <div class="search">
+        <app-search></app-search>
+      </div>
     </mat-toolbar-row>
   </mat-toolbar>
 </header>

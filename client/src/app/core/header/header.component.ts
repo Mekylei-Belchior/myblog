@@ -11,10 +11,16 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit(): void {}
 
+  /**
+   * Navigate to the HOME page
+   */
   public goHome(): void {
     this.router.navigate(['/']);
   }
 
+  /**
+   * Navigate to the POSTAGEM page
+   */
   public goPostagem(): void {
     this.router.navigate(['postagem']);
   }

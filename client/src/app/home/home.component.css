@@ -1,5 +1,6 @@
 .container {
-  min-height: 1200px;
+  min-height: 180vh;
+  width: 100%;
   top: 0;
 }
 
@@ -8,7 +9,7 @@
   background-size: 100%;
   background-repeat: no-repeat;
   padding-top: 15%;
-  height: 1200px;
+  height: 180vh;
   max-width: 100%;
   text-align: center;
   color: #fff;
@@ -36,12 +37,12 @@
 
 @media(width: 360px) {
   .container {
-    min-height: 540px;
+    min-height:640px;
     top: 0;
   }
 
   .content {
-    height: 540px;
+    height: 640px;
   }
 }
 

@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { FullNews } from './../../../shared/interfaces/fullNews.interface';
+import { AlertMessageService } from './../../../shared/services/alert-message.service';
 import { NewsService } from './../../news.service';
 
 @Component({
@@ -17,6 +18,7 @@ export class CommentFormDialogComponent implements OnInit {
     private formBuilder: FormBuilder,
     private dialogRef: MatDialogRef<CommentFormDialogComponent>,
     private newsService: NewsService,
+    private alert: AlertMessageService,
     @Inject(MAT_DIALOG_DATA) public post: { data: FullNews }
   ) {}
 
@@ -27,18 +29,21 @@ export class CommentFormDialogComponent implements OnInit {
     });
   }
 
+  /**
+   * Create a new comment
+   */
   public createComment(): void {
     if (this.commentForm.valid) {
+      // Call the service method that handler endpoint comment creation
       this.newsService
         .comment(this.commentForm.value, this.post.data.id)
         .subscribe((response) => {
           console.table(response);
         });
 
-      this.dialogRef.close();
+      this.dialogRef.close(true);
       this.commentForm.reset();
-      alert('Commentário criado com sucesso!');
-      // window.location.reload();
+      this.alert.showMessage('Commentário criado com sucesso!');
     }
   }
 

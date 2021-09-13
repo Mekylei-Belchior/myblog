@@ -156,6 +156,6 @@ INSERT INTO COMMENTS(author, comment, date, news_id) VALUES('Hal Jordan', 'That 
 
 
 INSERT INTO TOPIC_TAGS(id, topic_tags) VALUES(1, 'Lorem Ipsum'), (1, 'Artigo'), (1, 'Blog');
-INSERT INTO TOPIC_TAGS(id, topic_tags) VALUES(2, 'Front End'), (2, 'Publicação'), (2, 'Internet');
+INSERT INTO TOPIC_TAGS(id, topic_tags) VALUES(2, 'Front End'), (2, 'Browser'), (2, 'Internet');
 INSERT INTO TOPIC_TAGS(id, topic_tags) VALUES(3, 'Angular'), (3, 'TypeScript'), (3, 'JavaScript'), (3, 'API RestFull');
 

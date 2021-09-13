@@ -1,9 +1,10 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { News } from '../../news';
 
+import { News } from '../../news';
 import { FullNews } from './../../../shared/interfaces/fullNews.interface';
+import { AlertMessageService } from './../../../shared/services/alert-message.service';
 import { NewsService } from './../../news.service';
 
 @Component({
@@ -20,6 +21,7 @@ export class EditFormDialogComponent implements OnInit {
     private formBuilder: FormBuilder,
     private dialogRef: MatDialogRef<EditFormDialogComponent>,
     private newsService: NewsService,
+    private alert: AlertMessageService,
     @Inject(MAT_DIALOG_DATA) public post: { data: FullNews }
   ) {}
 
@@ -33,18 +35,27 @@ export class EditFormDialogComponent implements OnInit {
     this.tagsOnInit = this.post.data.tag;
   }
 
+  /**
+   * Add a topic in the list of topics
+   * @param topic The name of the topic
+   */
   public addTopic(topic: string): void {
     this.topicList.push(topic);
   }
 
+  /**
+   * Remove a topic form the list of topics
+   */
   public removeTopic(topic: string): void {
     this.topicList.splice(this.topicList.indexOf(topic), 1);
   }
 
-
+  /**
+   * Edit the news information
+   */
   public editNews(): void {
     if (this.newsEditForm.valid) {
-
+      // Gets form fields values to create a News
       const title = (this.newsEditForm.get('title')?.value as string) ?? '';
       const author = (this.newsEditForm.get('author')?.value as string) ?? '';
       const content = (this.newsEditForm.get('content')?.value as string) ?? '';
@@ -52,21 +63,19 @@ export class EditFormDialogComponent implements OnInit {
 
       const news: News = { title, author, content, tags };
 
-      this.newsService
-        .update(news, this.post.data.id)
-        .subscribe(
-          (response) => {
-            console.table(response);
-          },
-          (erros) => {
-            console.log(erros);
-          }
-        );
+      // Call the service method that handler endpoint news updates
+      this.newsService.update(news, this.post.data.id).subscribe(
+        (response) => {
+          console.table(response);
+        },
+        (erros) => {
+          console.log(erros);
+        }
+      );
 
-      this.dialogRef.close();
+      this.dialogRef.close(true);
       this.newsEditForm.reset();
-      window.location.reload();
-      alert('A postagem foi atualizada com sucesso!');
+      this.alert.showMessage('A postagem foi atualizada com sucesso!');
     }
   }
 

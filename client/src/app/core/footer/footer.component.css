@@ -10,6 +10,9 @@
   bottom: 0;
   height: 100px;
   font-family: "Open Sans", sans-serif;
-  font-size: 0.9rem;
   color: #fff;
+}
+
+p {
+  font-size: 0.8rem;
 }

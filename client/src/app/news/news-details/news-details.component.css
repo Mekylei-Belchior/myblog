@@ -33,6 +33,8 @@ h3 {
 }
 
 .content {
+  font-family: Georgia, Cambria, charter, "Times New Roman", Times, serif;
+  color: #353535;
   font-size: 1.3rem;
   max-width: 80%;
   white-space: pre-line;
@@ -62,5 +64,18 @@ h3 {
 }
 
 .tag-field {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
   padding-top: 1%;
+}
+
+.edit {
+  color: #ffa500;
+}
+
+.delete {
+  color: #ff006a;
+}
+
+.add-comment {
+  color: #077227;
 }

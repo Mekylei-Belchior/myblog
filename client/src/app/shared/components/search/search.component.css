@@ -1,0 +1,11 @@
+.form {
+  color: #e9e8e8;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-form-field.mat-form-field {
+  font-size: 0.9rem;
+}

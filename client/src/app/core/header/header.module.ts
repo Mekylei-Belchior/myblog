@@ -1,3 +1,4 @@
+import { SharedModule } from './../../shared/shared.module';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -17,6 +18,7 @@ import { HeaderComponent } from './header.component';
     MatButtonModule,
     MatTooltipModule,
     FlexLayoutModule,
+    SharedModule,
   ],
   exports: [HeaderComponent],
 })

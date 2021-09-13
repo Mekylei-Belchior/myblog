@@ -1,0 +1,19 @@
+.container {
+  min-height: 800px;
+  margin-top: 3%;
+}
+
+.container h1 {
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+.not-found {
+  display: flex;
+  justify-content: center;
+}
+
+.not-found img {
+  height: 45%;
+  width: 45%;
+}
