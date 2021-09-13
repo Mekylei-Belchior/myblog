@@ -30,9 +30,13 @@ export class NewsListComponent implements OnInit {
   public addNews(): void {
     const dialogRef = this.dialog.open(NewsFormDialogComponent);
 
-    dialogRef.afterClosed().subscribe(() => {
-      // Update the page with brand new information after close the dialog window
-      this.ngOnInit();
+    dialogRef.afterClosed().subscribe((news) => {
+      if (news) {
+        // Update the page with brand new information after close the dialog window
+        this.listOfNews = news.content;
+        this.length = news.totalElements;
+        this.pageSize = news.size;
+      }
     });
   }
 

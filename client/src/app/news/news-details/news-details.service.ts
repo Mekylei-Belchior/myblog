@@ -21,10 +21,10 @@ export class NewsDetailsService {
   /**
    * Open the Mat-Dialog
    * @param component The mat-dialog from component
-   * @param data Any data to use in the component
+   * @param data The news information
    * @param mainComponent Father component view
    */
-  public callForm(
+  public edit(
     component: ComponentType<unknown>,
     data: object,
     mainComponent: NewsDetailsComponent
@@ -35,7 +35,29 @@ export class NewsDetailsService {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        mainComponent.updateData();
+        mainComponent.refreshNews();
+      }
+    });
+  }
+
+  /**
+   * Open the Mat-Dialog
+   * @param component The mat-dialog from component
+   * @param data The news id
+   * @param mainComponent Father component view
+   */
+  public comment(
+    component: ComponentType<unknown>,
+    data: object,
+    mainComponent: NewsDetailsComponent
+  ): void {
+    const dialogRef = this.dialog.open(component, {
+      data: { data },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        mainComponent.refreshComments();
       }
     });
   }

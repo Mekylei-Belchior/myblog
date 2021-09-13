@@ -19,7 +19,7 @@ export class NewsDetailsComponent implements OnInit {
   public expandedPanel = true;
   public postId!: number;
   public news$!: Observable<FullNews>;
-  public fullNews!: FullNews;
+  public comments$!: Observable<FullNews>;
 
   constructor(
     private newsService: NewsService,
@@ -29,20 +29,18 @@ export class NewsDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.postId = this.activateRoute.snapshot.params.postId;
-    this.news$ = this.newsService.getNewsById(this.postId);
 
-    this.news$.subscribe((news) => {
-      this.fullNews = news;
-    });
+    this.news$ = this.newsService.getNewsById(this.postId);
+    this.comments$ = this.newsService.getNewsById(this.postId);
   }
 
   /**
    * Open the dialog window to add a new comment
    */
   public addCommentForm(): void {
-    this.detailsService.callForm(
+    this.detailsService.comment(
       CommentFormDialogComponent,
-      this.fullNews,
+      { id: this.postId },
       this
     );
   }
@@ -51,7 +49,10 @@ export class NewsDetailsComponent implements OnInit {
    * Open the dialog window to update the news informations
    */
   public editNewsForm(): void {
-    this.detailsService.callForm(EditFormDialogComponent, this.fullNews, this);
+    this.newsService.getNewsById(this.postId).subscribe((response) => {
+      const fullNews = response;
+      this.detailsService.edit(EditFormDialogComponent, fullNews, this);
+    });
   }
 
   /**
@@ -62,13 +63,16 @@ export class NewsDetailsComponent implements OnInit {
   }
 
   /**
-   * Update the page information after edit the news or insert a new comment
+   * Update the comment component after insert a new comment
    */
-  public updateData(): void {
-    this.news$ = this.newsService.getNewsById(this.postId);
+  public refreshComments(): void {
+    this.comments$ = this.newsService.getNewsById(this.postId);
+  }
 
-    this.news$.subscribe((news) => {
-      this.fullNews = news;
-    });
+  /**
+   * Update the news information
+   */
+  public refreshNews(): void {
+    this.news$ = this.newsService.getNewsById(this.postId);
   }
 }

@@ -61,15 +61,17 @@ export class NewsFormDialogComponent implements OnInit {
 
       // Call the service method that handler endpoint news creation
       this.newsService.create(post).subscribe(
-        (response) => {},
+        () => {
+          this.newsService.getAllNews().subscribe((response) => {
+            this.dialogRef.close(response);
+            this.newsForm.reset();
+            this.alert.showMessage('Nova postagem criada com sucesso!');
+          });
+        },
         (error) => {
           console.log(error);
         }
       );
-
-      this.dialogRef.close();
-      this.newsForm.reset();
-      this.alert.showMessage('Nova postagem criada com sucesso!');
     }
   }
 
