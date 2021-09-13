@@ -40,11 +40,16 @@ export class NewsListComponent implements OnInit {
    * Call service method to get all the news
    */
   private getNews(): void {
-    this.newsService.getAllNews().subscribe((news) => {
-      this.listOfNews = news.content;
-      this.length = news.totalElements;
-      this.pageSize = news.size;
-    });
+    this.newsService.getAllNews().subscribe(
+      (news) => {
+        this.listOfNews = news.content;
+        this.length = news.totalElements;
+        this.pageSize = news.size;
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
   }
 
   /**
@@ -52,12 +57,15 @@ export class NewsListComponent implements OnInit {
    * @param event The pagination event
    */
   public pageEvent(event: PageEvent): void {
-    this.newsService
-      .getPagedNews(event.pageIndex, event.pageSize)
-      .subscribe((news) => {
+    this.newsService.getPagedNews(event.pageIndex, event.pageSize).subscribe(
+      (news) => {
         this.listOfNews = news.content;
         this.length = news.totalElements;
         this.pageSize = news.size;
-      });
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
   }
 }

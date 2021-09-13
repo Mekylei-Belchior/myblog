@@ -65,9 +65,7 @@ export class EditFormDialogComponent implements OnInit {
 
       // Call the service method that handler endpoint news updates
       this.newsService.update(news, this.post.data.id).subscribe(
-        (response) => {
-          console.table(response);
-        },
+        (response) => {},
         (erros) => {
           console.log(erros);
         }

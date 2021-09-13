@@ -37,7 +37,6 @@ export class NewsDetailsService {
       if (result) {
         mainComponent.updateData();
       }
-      console.log(`O formulário ${component.name} foi fechado!`);
     });
   }
 
@@ -62,8 +61,6 @@ export class NewsDetailsService {
           }
         );
       }
-
-      console.log(`O formulário ${component.name} foi fechado!`);
     });
   }
 }

@@ -37,9 +37,12 @@ export class CommentFormDialogComponent implements OnInit {
       // Call the service method that handler endpoint comment creation
       this.newsService
         .comment(this.commentForm.value, this.post.data.id)
-        .subscribe((response) => {
-          console.table(response);
-        });
+        .subscribe(
+          (response) => {},
+          (error) => {
+            console.log(error);
+          }
+        );
 
       this.dialogRef.close(true);
       this.commentForm.reset();

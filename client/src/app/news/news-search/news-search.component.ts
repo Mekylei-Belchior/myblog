@@ -41,11 +41,16 @@ export class NewsSearchComponent implements OnInit {
   public pageEvent(event: PageEvent): void {
     this.newsService
       .getPagedSearchingByTitle(this.title, event.pageIndex, event.pageSize)
-      .subscribe((news) => {
-        this.listOfNews = news.content;
-        this.length = news.totalElements;
-        this.pageSize = news.size;
-      });
+      .subscribe(
+        (news) => {
+          this.listOfNews = news.content;
+          this.length = news.totalElements;
+          this.pageSize = news.size;
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
   }
 
   /**
@@ -61,10 +66,15 @@ export class NewsSearchComponent implements OnInit {
    * @param title The title passed in the url parameter
    */
   private search(title: string): void {
-    this.newsService.searchByTitle(title).subscribe((news) => {
-      this.listOfNews = news.content;
-      this.length = news.totalElements;
-      this.pageSize = news.size;
-    });
+    this.newsService.searchByTitle(title).subscribe(
+      (news) => {
+        this.listOfNews = news.content;
+        this.length = news.totalElements;
+        this.pageSize = news.size;
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
   }
 }

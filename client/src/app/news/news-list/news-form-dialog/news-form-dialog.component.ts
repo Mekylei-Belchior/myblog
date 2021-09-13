@@ -60,9 +60,12 @@ export class NewsFormDialogComponent implements OnInit {
       const post: News = { title, author, content, tags };
 
       // Call the service method that handler endpoint news creation
-      this.newsService.create(post).subscribe((response) => {
-        console.log(response);
-      });
+      this.newsService.create(post).subscribe(
+        (response) => {},
+        (error) => {
+          console.log(error);
+        }
+      );
 
       this.dialogRef.close();
       this.newsForm.reset();
