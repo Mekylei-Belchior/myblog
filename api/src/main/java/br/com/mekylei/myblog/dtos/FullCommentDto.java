@@ -5,10 +5,10 @@ import br.com.mekylei.myblog.models.Comment;
 import java.time.LocalDateTime;
 
 public class FullCommentDto {
-    private Long id;
-    private String comment;
-    private LocalDateTime date;
-    private String author;
+    private final Long id;
+    private final String comment;
+    private final LocalDateTime date;
+    private final String author;
 
     public FullCommentDto(Comment comment) {
         this.id = comment.getId();

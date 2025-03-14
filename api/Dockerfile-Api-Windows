@@ -1,5 +1,7 @@
+# Use a imagem base do Eclipse Temurin com JDK 21 para a etapa de build
 FROM eclipse-temurin:21-jdk-jammy AS build
 
+# Define o diretório de trabalho
 WORKDIR /app
 
 # Copia apenas os arquivos necessários para o build
@@ -7,9 +9,6 @@ COPY gradlew build.gradle settings.gradle ./
 COPY gradle ./gradle
 # Copia o código-fonte da API
 COPY src ./src
-
-# Dá permissão de execução ao Gradle Wrapper
-RUN chmod +x gradlew
 
 # Executa o build da aplicação
 RUN ./gradlew bootJar

@@ -1,8 +1,8 @@
 package br.com.mekylei.myblog.models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 

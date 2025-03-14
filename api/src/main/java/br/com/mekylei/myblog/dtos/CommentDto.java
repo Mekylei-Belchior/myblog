@@ -1,6 +1,7 @@
 package br.com.mekylei.myblog.dtos;
 
-import javax.validation.constraints.NotBlank;
+
+import jakarta.validation.constraints.NotBlank;
 
 public class CommentDto {
 

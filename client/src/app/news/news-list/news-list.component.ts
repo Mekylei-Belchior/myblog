@@ -33,9 +33,9 @@ export class NewsListComponent implements OnInit {
     dialogRef.afterClosed().subscribe((news) => {
       if (news) {
         // Update the page with brand new information after close the dialog window
-        this.listOfNews = news.content;
-        this.length = news.totalElements;
-        this.pageSize = news.size;
+        this.listOfNews = news._embedded.newsList;
+        this.length = news.page.totalElements;
+        this.pageSize = news.page.size;
       }
     });
   }
@@ -46,9 +46,9 @@ export class NewsListComponent implements OnInit {
   private getNews(): void {
     this.newsService.getAllNews().subscribe(
       (news) => {
-        this.listOfNews = news.content;
-        this.length = news.totalElements;
-        this.pageSize = news.size;
+        this.listOfNews = news._embedded.newsList;
+        this.length = news.page.totalElements;
+        this.pageSize = news.page.size;
       },
       (error) => {
         console.log(error);
@@ -63,9 +63,9 @@ export class NewsListComponent implements OnInit {
   public pageEvent(event: PageEvent): void {
     this.newsService.getPagedNews(event.pageIndex, event.pageSize).subscribe(
       (news) => {
-        this.listOfNews = news.content;
-        this.length = news.totalElements;
-        this.pageSize = news.size;
+        this.listOfNews = news._embedded.newsList;
+        this.length = news.page.totalElements;
+        this.pageSize = news.page.size;
       },
       (error) => {
         console.log(error);

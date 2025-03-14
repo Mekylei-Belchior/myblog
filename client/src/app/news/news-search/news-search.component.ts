@@ -43,9 +43,9 @@ export class NewsSearchComponent implements OnInit {
       .getPagedSearchingByTitle(this.title, event.pageIndex, event.pageSize)
       .subscribe(
         (news) => {
-          this.listOfNews = news.content;
-          this.length = news.totalElements;
-          this.pageSize = news.size;
+          this.listOfNews = news._embedded.newsList;
+          this.length = news.page.totalElements;
+          this.pageSize = news.page.size;
         },
         (error) => {
           console.log(error);
@@ -68,9 +68,9 @@ export class NewsSearchComponent implements OnInit {
   private search(title: string): void {
     this.newsService.searchByTitle(title).subscribe(
       (news) => {
-        this.listOfNews = news.content;
-        this.length = news.totalElements;
-        this.pageSize = news.size;
+        this.listOfNews = news._embedded.newsList;
+        this.length = news.page.totalElements;
+        this.pageSize = news.page.size;
       },
       (error) => {
         console.log(error);

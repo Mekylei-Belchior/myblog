@@ -1,0 +1,23 @@
+# Regras para API
+/api/build/
+/api/.gradle
+/api/*.log
+/api/out/
+/api/!*/src/main/*/out/
+/api/!*/src/test/*/out/
+
+# Regras para o Client
+/client/node_modules/
+/client/dist/
+/client/tmp/
+/client/out-tsc/
+/client/chrome-profiler-events*.json
+/client/speed-measure-plugin*.json
+/client/.DS_Store
+/client/Thumbs.db
+
+### IntelliJ IDEA ###
+.idea/
+
+### VS Code ###
+.vscode/

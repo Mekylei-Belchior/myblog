@@ -2,8 +2,8 @@ package br.com.mekylei.myblog.dtos;
 
 import br.com.mekylei.myblog.models.News;
 import br.com.mekylei.myblog.repositories.NewsRepository;
+import jakarta.validation.constraints.NotBlank;
 
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 public class UpdateNewsDto {
@@ -47,7 +47,7 @@ public class UpdateNewsDto {
      * @return the news updated
      */
     public News update(Long id, NewsRepository newsRepository) {
-        News news = newsRepository.getById(id);
+        News news = newsRepository.getReferenceById(id);
         news.setTitle(this.title);
         news.setContent(this.content);
         news.setTags(this.tags);

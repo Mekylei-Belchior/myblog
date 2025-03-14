@@ -1,14 +1,24 @@
 import { ListOfNews } from './ResponseNews.interface';
 
 export interface NewsPageable {
-  content: ListOfNews;
-  pageable: object[];
-  last: boolean;
+  _embedded: Embedded;
+  _links: Links;
+  page: Page;
+}
+
+interface Embedded {
+  newsList: ListOfNews;
+}
+
+interface Links {
+  self: {
+      href: string;
+  };
+}
+
+interface Page {
+  size: number;
   totalElements: number;
   totalPages: number;
-  size: number;
   number: number;
-  sort: boolean;
-  first: boolean;
-  numberOfElements: number;
 }

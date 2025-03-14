@@ -6,14 +6,14 @@ import br.com.mekylei.myblog.models.Comment;
 import br.com.mekylei.myblog.models.News;
 import br.com.mekylei.myblog.repositories.CommentRepository;
 import br.com.mekylei.myblog.repositories.NewsRepository;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
-import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController

@@ -1,0 +1,30 @@
+# Datasource
+spring:
+  logging:
+    level:
+      org.springframework.boot: DEBUG
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:blog
+    username: sa
+    password: '123'
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+    settings:
+      web-allow-others: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/specific/h2
+    placeholder-replacement: false
+    depends-on: entityManagerFactory
+    log-sql: true

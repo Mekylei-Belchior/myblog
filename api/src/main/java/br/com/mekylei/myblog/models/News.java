@@ -1,8 +1,8 @@
 package br.com.mekylei.myblog.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +27,8 @@ public class News {
     private List<Comment> comment = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="topic_tags",
-            joinColumns = @JoinColumn(name = "id"))
-    @Column(name="topic_tags")
+    @CollectionTable(name="news_tags", joinColumns = @JoinColumn(name = "id"))
+    @Column(name="news_tags")
     private List<String> tags;
 
     public News() {
