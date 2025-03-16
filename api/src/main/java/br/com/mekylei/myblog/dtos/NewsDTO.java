@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 
-public class NewsDto {
+public class NewsDTO {
 
     @NotBlank
     private String title;

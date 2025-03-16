@@ -3,7 +3,7 @@ package br.com.mekylei.myblog.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class CommentDto {
+public class CommentDTO {
 
     @NotBlank
     private String author;

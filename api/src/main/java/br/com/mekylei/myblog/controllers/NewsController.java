@@ -1,8 +1,8 @@
 package br.com.mekylei.myblog.controllers;
 
-import br.com.mekylei.myblog.dtos.FullNewsDto;
-import br.com.mekylei.myblog.dtos.NewsDto;
-import br.com.mekylei.myblog.dtos.UpdateNewsDto;
+import br.com.mekylei.myblog.dtos.FullNewsDTO;
+import br.com.mekylei.myblog.dtos.NewsDTO;
+import br.com.mekylei.myblog.dtos.UpdateNewsDTO;
 import br.com.mekylei.myblog.models.News;
 import br.com.mekylei.myblog.repositories.NewsRepository;
 import jakarta.transaction.Transactional;
@@ -42,7 +42,7 @@ public class NewsController {
      */
     @PostMapping
     @Transactional
-    public ResponseEntity<News> create(@RequestBody @Valid NewsDto newsDto) {
+    public ResponseEntity<News> create(@RequestBody @Valid NewsDTO newsDto) {
         News news = new News();
         BeanUtils.copyProperties(newsDto, news);
         this.newsRepository.save(news);
@@ -58,7 +58,7 @@ public class NewsController {
      */
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<News> update(@PathVariable Long id, @RequestBody @Valid UpdateNewsDto newsData) {
+    public ResponseEntity<News> update(@PathVariable Long id, @RequestBody @Valid UpdateNewsDTO newsData) {
         Optional<News> nws = this.newsRepository.findById(id);
         if (nws.isPresent()) {
             News news = newsData.update(id, this.newsRepository);
@@ -109,9 +109,9 @@ public class NewsController {
      * @return An object with all information about the news or status 404
      */
     @GetMapping("/{id}")
-    public ResponseEntity<FullNewsDto> getCompleteNews(@PathVariable Long id) {
+    public ResponseEntity<FullNewsDTO> getCompleteNews(@PathVariable Long id) {
         Optional<News> news = this.newsRepository.findById(id);
-        return news.map(value -> ResponseEntity.ok(new FullNewsDto(value)))
+        return news.map(value -> ResponseEntity.ok(new FullNewsDTO(value)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 

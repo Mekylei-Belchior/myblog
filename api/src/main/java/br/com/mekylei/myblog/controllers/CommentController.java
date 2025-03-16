@@ -1,7 +1,7 @@
 package br.com.mekylei.myblog.controllers;
 
-import br.com.mekylei.myblog.dtos.CommentDto;
-import br.com.mekylei.myblog.dtos.FullCommentDto;
+import br.com.mekylei.myblog.dtos.CommentDTO;
+import br.com.mekylei.myblog.dtos.FullCommentDTO;
 import br.com.mekylei.myblog.models.Comment;
 import br.com.mekylei.myblog.models.News;
 import br.com.mekylei.myblog.repositories.CommentRepository;
@@ -34,7 +34,7 @@ public class CommentController {
      */
     @PostMapping()
     @Transactional
-    public ResponseEntity<FullCommentDto> create(@PathVariable Long id, @RequestBody @Valid CommentDto commentDto) {
+    public ResponseEntity<FullCommentDTO> create(@PathVariable Long id, @RequestBody @Valid CommentDTO commentDto) {
         Comment comment = new Comment();
         Optional<News> news = this.newsRepository.findById(id);
 
@@ -46,6 +46,6 @@ public class CommentController {
         BeanUtils.copyProperties(commentDto, comment);
         this.commentRepository.save(comment);
 
-        return new ResponseEntity<>(new FullCommentDto(comment), HttpStatus.CREATED);
+        return new ResponseEntity<>(new FullCommentDTO(comment), HttpStatus.CREATED);
     }
 }

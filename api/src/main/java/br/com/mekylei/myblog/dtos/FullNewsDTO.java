@@ -7,22 +7,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class FullNewsDto {
+public class FullNewsDTO {
     private Long id;
     private String title;
     private String author;
     private LocalDateTime date;
     private String content;
-    private List<FullCommentDto> comment = new ArrayList<>();
+    private List<FullCommentDTO> comment = new ArrayList<>();
     private List<String> tag = new ArrayList<>();
 
-    public FullNewsDto(News news) {
+    public FullNewsDTO(News news) {
         this.id = news.getId();
         this.title = news.getTitle();
         this.author = news.getAuthor();
         this.date = news.getDate();
         this.content = news.getContent();
-        this.comment.addAll(news.getComment().stream().map(FullCommentDto::new).collect(Collectors.toList()));
+        this.comment.addAll(news.getComment().stream().map(FullCommentDTO::new).collect(Collectors.toList()));
         this.tag.addAll(news.getTags());
     }
 
@@ -46,7 +46,7 @@ public class FullNewsDto {
         return content;
     }
 
-    public List<FullCommentDto> getComment() {
+    public List<FullCommentDTO> getComment() {
         return comment;
     }
 
