@@ -2,50 +2,34 @@ package br.com.mekylei.myblog.controllers;
 
 import br.com.mekylei.myblog.dtos.comment.CommentDTO;
 import br.com.mekylei.myblog.dtos.comment.FullCommentDTO;
-import br.com.mekylei.myblog.models.Comment;
-import br.com.mekylei.myblog.models.News;
-import br.com.mekylei.myblog.repositories.CommentRepository;
-import br.com.mekylei.myblog.repositories.NewsRepository;
-import jakarta.transaction.Transactional;
+import br.com.mekylei.myblog.services.CommentService;
 import jakarta.validation.Valid;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/news/{id}")
 public class CommentController {
 
-    @Autowired
-    private CommentRepository commentRepository;
+    private final CommentService commentService;
 
-    @Autowired
-    private NewsRepository newsRepository;
+
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
+    }
+
 
     /**
-     * Create a new comment
+     * Create a news comment
      *
-     * @param commentDto An object that represents a comment
-     * @return the all comment information
+     * @param id      The ID of the news article
+     * @param comment An object that represents a comment
+     * @return the hole comment information
      */
     @PostMapping()
-    @Transactional
-    public ResponseEntity<FullCommentDTO> create(@PathVariable Long id, @RequestBody @Valid CommentDTO commentDto) {
-        Comment comment = new Comment();
-        Optional<News> news = this.newsRepository.findById(id);
-
-        if (news.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        comment.setNews(news.get());
-        BeanUtils.copyProperties(commentDto, comment);
-        this.commentRepository.save(comment);
-
-        return new ResponseEntity<>(new FullCommentDTO(comment), HttpStatus.CREATED);
+    public ResponseEntity<FullCommentDTO> create(@PathVariable Long id, @RequestBody @Valid CommentDTO comment) {
+        return new ResponseEntity<>(commentService.createComment(id, comment), HttpStatus.CREATED);
     }
+
 }

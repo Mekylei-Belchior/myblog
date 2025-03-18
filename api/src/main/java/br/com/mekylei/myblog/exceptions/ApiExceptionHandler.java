@@ -1,6 +1,8 @@
 package br.com.mekylei.myblog.exceptions;
 
 import br.com.mekylei.myblog.dtos.auth.ErrorResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -20,75 +22,68 @@ import java.time.Instant;
 @ControllerAdvice
 public class ApiExceptionHandler {
 
-    @ExceptionHandler({UsernameNotFoundException.class})
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiExceptionHandler.class);
+
+
+    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, Exception exception, String error, WebRequest request) {
+        return buildResponse(status, exception, error, exception.getMessage(), request);
+    }
+
+    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, Exception exception, String error, String message, WebRequest request) {
+        LOGGER.error("Exception Cause: {}", exception.getMessage(), exception);
+
+        ErrorResponse response = new ErrorResponse(
+                Instant.now(),
+                status.value(),
+                error,
+                message,
+                request.getDescription(false).replace("uri=", "")
+        );
+
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleUnmappedExceptions(Exception exception, WebRequest request) {
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, exception, "An unexpected error occurred", request);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFound(UsernameNotFoundException exception, WebRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                Instant.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "User not found",
-                exception.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return buildResponse(HttpStatus.NOT_FOUND, exception, "User not found", request);
     }
 
-    @ExceptionHandler({AccessDeniedException.class})
+    @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException exception, WebRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                Instant.now(),
-                HttpStatus.FORBIDDEN.value(),
-                "Only logged users",
-                "Access denied",
-                request.getDescription(false).replace("uri=", "")
-        );
-        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+        return buildResponse(HttpStatus.FORBIDDEN, exception, "Access denied", "Only logged users", request);
     }
 
-    @ExceptionHandler({BadCredentialsException.class})
+    @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException exception, WebRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                Instant.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Invalid login",
-                "Non-existent user or invalid password",
-                request.getDescription(false).replace("uri=", "")
-        );
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return buildResponse(HttpStatus.BAD_REQUEST, exception, "Invalid login", "Non-existent user or invalid password", request);
     }
 
     @ExceptionHandler({DisabledException.class, LockedException.class})
     public ResponseEntity<ErrorResponse> handleRejectedAuthentication(AccountStatusException exception, WebRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                Instant.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                exception.getMessage(),
-                "Authentication request was rejected",
-                request.getDescription(false).replace("uri=", "")
-        );
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return buildResponse(HttpStatus.BAD_REQUEST, exception, "Authentication request rejected",
+                "Authentication request was rejected because the account is disabled or locked", request);
     }
 
-    @ExceptionHandler({NoResourceFoundException.class})
+    @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException exception, WebRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                Instant.now(),
-                HttpStatus.NOT_FOUND.value(),
-                exception.getMessage(),
-                "No resource found: " + exception.getResourcePath(),
-                request.getDescription(false).replace("uri=", ""));
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return buildResponse(HttpStatus.NOT_FOUND, exception, "No resource found",
+                "No resource found: " + exception.getResourcePath(), request);
     }
 
-    @ExceptionHandler({NoHandlerFoundException.class})
+    @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoHandlerFoundException(NoHandlerFoundException exception, WebRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                Instant.now(),
-                HttpStatus.NOT_FOUND.value(),
-                exception.getMessage(),
-                "No resource found: " + exception.getRequestURL(),
-                request.getDescription(false).replace("uri=", "")
-        );
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return buildResponse(HttpStatus.NOT_FOUND, exception, "No resource found",
+                "The resource you request was not found", request);
+    }
+
+    @ExceptionHandler(NewsNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNewsNotFound(NewsNotFoundException exception, WebRequest request) {
+        return buildResponse(HttpStatus.NOT_FOUND, exception, "News not found", request);
     }
 
 }
