@@ -1,35 +1,16 @@
 package br.com.mekylei.myblog.dtos.comment;
 
 import br.com.mekylei.myblog.models.Comment;
+import br.com.mekylei.myblog.utils.DataUtil;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.LocalDateTime;
-
-public class FullCommentDTO {
-    private final Long id;
-    private final String comment;
-    private final LocalDateTime date;
-    private final String author;
+public record FullCommentDTO(Long id,
+                             String comment,
+                             @JsonProperty("date") String date,
+                             String author) {
 
     public FullCommentDTO(Comment comment) {
-        this.id = comment.getId();
-        this.comment = comment.getComment();
-        this.date = comment.getDate();
-        this.author = comment.getAuthor();
+        this(comment.getId(), comment.getComment(), DataUtil.formatDateTime(comment.getDate()), comment.getAuthor());
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
 }
