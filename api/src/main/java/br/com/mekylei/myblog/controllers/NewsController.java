@@ -1,8 +1,8 @@
 package br.com.mekylei.myblog.controllers;
 
-import br.com.mekylei.myblog.dtos.FullNewsDTO;
-import br.com.mekylei.myblog.dtos.NewsDTO;
-import br.com.mekylei.myblog.dtos.UpdateNewsDTO;
+import br.com.mekylei.myblog.dtos.news.FullNewsDTO;
+import br.com.mekylei.myblog.dtos.news.NewsDTO;
+import br.com.mekylei.myblog.dtos.news.UpdateNewsDTO;
 import br.com.mekylei.myblog.models.News;
 import br.com.mekylei.myblog.repositories.NewsRepository;
 import jakarta.transaction.Transactional;

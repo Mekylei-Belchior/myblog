@@ -1,7 +1,7 @@
 package br.com.mekylei.myblog.controllers;
 
-import br.com.mekylei.myblog.dtos.CommentDTO;
-import br.com.mekylei.myblog.dtos.FullCommentDTO;
+import br.com.mekylei.myblog.dtos.comment.CommentDTO;
+import br.com.mekylei.myblog.dtos.comment.FullCommentDTO;
 import br.com.mekylei.myblog.models.Comment;
 import br.com.mekylei.myblog.models.News;
 import br.com.mekylei.myblog.repositories.CommentRepository;

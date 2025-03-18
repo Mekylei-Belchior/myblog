@@ -1,6 +1,7 @@
 # Regras para API
 /api/build/
 /api/.gradle
+/api/gradle/daemon/
 /api/*.log
 /api/out/
 /api/!*/src/main/*/out/
@@ -17,6 +18,7 @@
 /client/Thumbs.db
 
 ### IntelliJ IDEA ###
+.gradle
 .idea/
 
 ### VS Code ###

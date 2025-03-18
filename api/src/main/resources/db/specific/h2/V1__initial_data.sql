@@ -3,6 +3,84 @@ SET REFERENTIAL_INTEGRITY FALSE;
 
 CREATE SCHEMA IF NOT EXISTS PUBLIC;
 
+-- Cria a tabela de usuários
+CREATE TABLE PUBLIC.users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created TIMESTAMP DEFAULT NOW(),
+    active BOOLEAN DEFAULT TRUE
+);
+
+-- Inserir registros na tabela users
+INSERT INTO users (name, email, password, created, active) VALUES
+('Dr. Carlos Silva', 'carlos.silva@email.com', '$2a$12$6WCRXl.w1m4DI8VxWtf6I.O1RR1bjkKBtjLDPHTHM20EUV6UXdbUa', NOW(), TRUE),
+('Dra. Ana Souza', 'ana.souza@email.com', '$2a$12$6WCRXl.w1m4DI8VxWtf6I.O1RR1bjkKBtjLDPHTHM20EUV6UXdbUa', NOW(), TRUE),
+('João Pereira', 'joao.pereira@email.com', '$2a$12$6WCRXl.w1m4DI8VxWtf6I.O1RR1bjkKBtjLDPHTHM20EUV6UXdbUa', NOW(), TRUE),
+('Maria Fernandes', 'maria.fernandes@email.com', '$2a$12$6WCRXl.w1m4DI8VxWtf6I.O1RR1bjkKBtjLDPHTHM20EUV6UXdbUa', NOW(), TRUE),
+('Pedro Almeida', 'pedro.almeida@email.com', '$2a$12$6WCRXl.w1m4DI8VxWtf6I.O1RR1bjkKBtjLDPHTHM20EUV6UXdbUa', NOW(), TRUE),
+('Carla Mendes', 'carla.mendes@email.com', '$2a$12$6WCRXl.w1m4DI8VxWtf6I.O1RR1bjkKBtjLDPHTHM20EUV6UXdbUa', NOW(), TRUE),
+('Lucas Oliveira', 'lucas.oliveira@email.com', '$2a$12$6WCRXl.w1m4DI8VxWtf6I.O1RR1bjkKBtjLDPHTHM20EUV6UXdbUa', NOW(), TRUE),
+('Dr. Ricardo Santos', 'ricardo.santos@email.com', '$2a$12$6WCRXl.w1m4DI8VxWtf6I.O1RR1bjkKBtjLDPHTHM20EUV6UXdbUa', NOW(), TRUE),
+('Fernanda Costa', 'fernanda.costa@email.com', '$2a$12$6WCRXl.w1m4DI8VxWtf6I.O1RR1bjkKBtjLDPHTHM20EUV6UXdbUa', NOW(), TRUE),
+('Patrícia Lima', 'patricia.lima@email.com', '$2a$12$6WCRXl.w1m4DI8VxWtf6I.O1RR1bjkKBtjLDPHTHM20EUV6UXdbUa', NOW(), TRUE);
+
+-- Criar tabela roles
+CREATE TABLE PUBLIC.roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
+-- Inserir registros na tabela roles
+INSERT INTO PUBLIC.roles (name) VALUES
+('ROLE_ADMIN'),
+('ROLE_USER');
+
+-- Criar tabela de User x Roles
+CREATE TABLE PUBLIC.user_roles (
+    user_id BIGINT NOT NULL,
+    role_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, role_id),
+    FOREIGN KEY (user_id) REFERENCES PUBLIC.users(id),
+    FOREIGN KEY (role_id) REFERENCES PUBLIC.roles(id)
+);
+
+-- Associar usuários a roles
+INSERT INTO PUBLIC.user_roles (user_id, role_id) VALUES
+-- Dr. Carlos Silva é um ADMIN e também um USER
+(1, 1), -- user_id = 1 (Dr. Carlos Silva), role_id = 1 (ROLE_ADMIN)
+(1, 2), -- user_id = 1 (Dr. Carlos Silva), role_id = 2 (ROLE_USER)
+
+-- Dra. Ana Souza é um ADMIN e também um USER
+(2, 1), -- user_id = 2 (Dra. Ana Souza), role_id = 1 (ROLE_ADMIN)
+(2, 2), -- user_id = 2 (Dra. Ana Souza), role_id = 2 (ROLE_USER)
+
+-- João Pereira é um USER
+(3, 2), -- user_id = 3 (João Pereira), role_id = 2 (ROLE_USER)
+
+-- Maria Fernandes é um USER
+(4, 2), -- user_id = 4 (Maria Fernandes), role_id = 2 (ROLE_USER)
+
+-- Pedro Almeida é um USER
+(5, 2), -- user_id = 5 (Pedro Almeida), role_id = 2 (ROLE_USER)
+
+-- Carla Mendes é um USER
+(6, 2), -- user_id = 6 (Carla Mendes), role_id = 2 (ROLE_USER)
+
+-- Lucas Oliveira é um USER
+(7, 2), -- user_id = 7 (Lucas Oliveira), role_id = 2 (ROLE_USER)
+
+-- Dr. Ricardo Santos é um ADMIN e também um USER
+(8, 1), -- user_id = 8 (Dr. Ricardo Santos), role_id = 1 (ROLE_ADMIN)
+(8, 2), -- user_id = 8 (Dr. Ricardo Santos), role_id = 2 (ROLE_USER)
+
+-- Fernanda Costa é um USER
+(9, 2), -- user_id = 9 (Fernanda Costa), role_id = 2 (ROLE_USER)
+
+-- Patrícia Lima é um USER
+(10, 2); -- user_id = 10 (Patrícia Lima), role_id = 2 (ROLE_USER)
+
 -- Criar tabela News
 CREATE TABLE PUBLIC.news (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,

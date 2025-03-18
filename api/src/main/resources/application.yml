@@ -1,5 +1,10 @@
-# Datasource
+# Spring and Datasource
 spring:
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
   logging:
     level:
       org.springframework.boot: DEBUG
@@ -9,6 +14,7 @@ spring:
     username: sa
     password: '123'
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: none
     properties:
@@ -28,3 +34,7 @@ spring:
     placeholder-replacement: false
     depends-on: entityManagerFactory
     log-sql: true
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET}

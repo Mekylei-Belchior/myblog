@@ -23,7 +23,7 @@ public class News {
     private String content;
 
     @JsonBackReference
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "news", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "news", fetch = FetchType.EAGER)
     private List<Comment> comment = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
