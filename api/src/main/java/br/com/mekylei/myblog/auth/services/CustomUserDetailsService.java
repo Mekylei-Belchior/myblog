@@ -1,8 +1,9 @@
 package br.com.mekylei.myblog.auth.services;
 
-import br.com.mekylei.myblog.models.User;
+import br.com.mekylei.myblog.models.ApiUser;
 import br.com.mekylei.myblog.repositories.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,9 +23,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<User> userOptional = userRepository.findByEmail(email);
+        Optional<ApiUser> userOptional = userRepository.findByEmail(email);
 
-        return userOptional.map(user -> org.springframework.security.core.userdetails.User.builder()
+        return userOptional.map(user -> User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
                 .authorities(user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList()))

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
-public class User implements UserDetails, CredentialsContainer {
+public class ApiUser implements UserDetails, CredentialsContainer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,10 +42,10 @@ public class User implements UserDetails, CredentialsContainer {
     @Column(nullable = false)
     private Boolean active = true;
 
-    public User() {
+    public ApiUser() {
     }
 
-    public User(Long id, String email, String password, List<Role> roles) {
+    public ApiUser(Long id, String email, String password, List<Role> roles) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -120,7 +120,7 @@ public class User implements UserDetails, CredentialsContainer {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
+        ApiUser user = (ApiUser) o;
         return Objects.equals(id, user.id) && Objects.equals(email, user.email);
     }
 
@@ -159,8 +159,8 @@ public class User implements UserDetails, CredentialsContainer {
             return this;
         }
 
-        public User build() {
-            return new User(id, email, password, roles);
+        public ApiUser build() {
+            return new ApiUser(id, email, password, roles);
         }
     }
 
