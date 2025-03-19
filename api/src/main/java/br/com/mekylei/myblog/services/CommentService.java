@@ -4,10 +4,8 @@ import br.com.mekylei.myblog.dtos.comment.CommentDTO;
 import br.com.mekylei.myblog.dtos.comment.FullCommentDTO;
 import br.com.mekylei.myblog.exceptions.NewsNotFoundException;
 import br.com.mekylei.myblog.models.Comment;
-import br.com.mekylei.myblog.models.News;
 import br.com.mekylei.myblog.repositories.CommentRepository;
 import br.com.mekylei.myblog.repositories.NewsRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,16 +23,13 @@ public class CommentService {
 
 
     @Transactional
-    public FullCommentDTO createComment(Long idNews, CommentDTO comment) {
-        News news = newsRepository.findById(idNews).orElseThrow(() ->
-                new NewsNotFoundException("News not found for ID: " + idNews));
+    public FullCommentDTO createComment(Long idNews, CommentDTO data) {
+        Comment comment = new Comment();
+        comment.setNews(newsRepository.findById(idNews).orElseThrow(() -> new NewsNotFoundException(idNews)));
+        comment.setAuthor(data.author());
+        comment.setComment(data.comment());
 
-        Comment fullComment = new Comment();
-        fullComment.setNews(news);
-        BeanUtils.copyProperties(comment, fullComment);
-        commentRepository.save(fullComment);
-
-        return new FullCommentDTO(fullComment);
+        return new FullCommentDTO(commentRepository.save(comment));
     }
 
 }

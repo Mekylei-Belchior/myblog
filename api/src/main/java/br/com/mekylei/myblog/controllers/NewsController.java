@@ -2,69 +2,51 @@ package br.com.mekylei.myblog.controllers;
 
 import br.com.mekylei.myblog.dtos.news.FullNewsDTO;
 import br.com.mekylei.myblog.dtos.news.NewsDTO;
-import br.com.mekylei.myblog.dtos.news.UpdateNewsDTO;
 import br.com.mekylei.myblog.models.News;
-import br.com.mekylei.myblog.repositories.NewsRepository;
-import jakarta.transaction.Transactional;
+import br.com.mekylei.myblog.services.NewsService;
 import jakarta.validation.Valid;
-import org.springframework.beans.BeanUtils;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/news")
 public class NewsController {
 
-    private final NewsRepository newsRepository;
-    private final PagedResourcesAssembler<News> pagedResourcesAssembler;
+    private final NewsService newsService;
 
-    public NewsController(NewsRepository newsRepository, PagedResourcesAssembler<News> pagedResourcesAssembler) {
-        this.newsRepository = newsRepository;
-        this.pagedResourcesAssembler = pagedResourcesAssembler;
+
+    public NewsController(NewsService newsService) {
+        this.newsService = newsService;
     }
 
 
     /**
      * Create a news
      *
-     * @param newsDto An object that represents a news
+     * @param news An object that represents a news
      * @return the news created and http status (201)
      */
     @PostMapping
-    @Transactional
-    public ResponseEntity<News> create(@RequestBody @Valid NewsDTO newsDto) {
-        News news = new News();
-        BeanUtils.copyProperties(newsDto, news);
-        this.newsRepository.save(news);
-        return new ResponseEntity<>(news, HttpStatus.CREATED);
+    public ResponseEntity<News> create(@RequestBody @Valid NewsDTO news) {
+        return new ResponseEntity<>(newsService.createNews(news), HttpStatus.CREATED);
     }
 
     /**
      * Update the news
      *
-     * @param id       identification of the news
-     * @param newsData current data of the news
+     * @param id   identification of the news
+     * @param news current data of the news
      * @return the news updated
      */
     @PutMapping("/{id}")
-    @Transactional
-    public ResponseEntity<News> update(@PathVariable Long id, @RequestBody @Valid UpdateNewsDTO newsData) {
-        Optional<News> nws = this.newsRepository.findById(id);
-        if (nws.isPresent()) {
-            News news = newsData.update(id, this.newsRepository);
-            return ResponseEntity.ok(news);
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<News> update(@PathVariable Long id, @RequestBody @Valid NewsDTO news) {
+        return ResponseEntity.ok(newsService.updateNews(id, news));
     }
 
     /**
@@ -74,14 +56,8 @@ public class NewsController {
      * @return if ok status 200. Otherwise, status 404
      */
     @DeleteMapping("/{id}")
-    @Transactional
     public ResponseEntity<News> delete(@PathVariable Long id) {
-        Optional<News> news = this.newsRepository.findById(id);
-        if (news.isPresent()) {
-            this.newsRepository.deleteById(id);
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(newsService.deleteNews(id));
     }
 
     /**
@@ -98,8 +74,7 @@ public class NewsController {
                                                               size = 5,
                                                               sort = "id",
                                                               direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<News> newsPage = this.newsRepository.findByTags(pageable, tag);
-        return pagedResourcesAssembler.toModel(newsPage);
+        return newsService.getNewsByTag(pageable, tag);
     }
 
     /**
@@ -110,9 +85,7 @@ public class NewsController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<FullNewsDTO> getCompleteNews(@PathVariable Long id) {
-        Optional<News> news = this.newsRepository.findById(id);
-        return news.map(value -> ResponseEntity.ok(new FullNewsDTO(value)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(newsService.getCompleteNews(id));
     }
 
     /**
@@ -129,12 +102,7 @@ public class NewsController {
                                                          size = 10,
                                                          sort = "id",
                                                          direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<News> newsPage;
-        if (title != null) {
-            newsPage = newsRepository.findByTitleContainingIgnoreCase(pageable, title);
-        } else {
-            newsPage = newsRepository.findAll(pageable);
-        }
-        return pagedResourcesAssembler.toModel(newsPage);
+        return newsService.getNews(pageable, title);
     }
+
 }

@@ -35,6 +35,13 @@ public class News {
     public News() {
     }
 
+    public News(String title, String author, String content, List<String> tags) {
+        this.title = title;
+        this.author = author;
+        this.content = content;
+        this.tags = tags;
+    }
+
     public Long getId() {
         return id;
     }

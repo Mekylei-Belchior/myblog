@@ -81,7 +81,7 @@ public class ApiExceptionHandler {
                 "The resource you request was not found", request);
     }
 
-    @ExceptionHandler(NewsNotFoundException.class)
+    @ExceptionHandler({NewsNotFoundException.class, NewsNotFoundByException.class})
     public ResponseEntity<ErrorResponse> handleNewsNotFound(NewsNotFoundException exception, WebRequest request) {
         return buildResponse(HttpStatus.NOT_FOUND, exception, "News not found", request);
     }
