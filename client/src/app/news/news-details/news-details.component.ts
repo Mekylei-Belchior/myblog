@@ -8,6 +8,7 @@ import { NewsService } from './../news.service';
 import { CommentFormDialogComponent } from './comment-form-dialog/comment-form-dialog.component';
 import { EditFormDialogComponent } from './edit-form-dialog/edit-form-dialog.component';
 import { NewsDetailsService } from './news-details.service';
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-news-details',
@@ -20,14 +21,17 @@ export class NewsDetailsComponent implements OnInit {
   public postId!: number;
   public news$!: Observable<FullNews>;
   public comments$!: Observable<FullNews>;
+  public isAuthenticated = false;
 
   constructor(
     private newsService: NewsService,
     private detailsService: NewsDetailsService,
-    private activateRoute: ActivatedRoute
+    private activateRoute: ActivatedRoute,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.isAuthenticated = this.authService.isAuthenticated();
     this.postId = this.activateRoute.snapshot.params.postId;
 
     this.news$ = this.newsService.getNewsById(this.postId);

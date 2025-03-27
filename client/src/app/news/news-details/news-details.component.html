@@ -14,7 +14,7 @@
     </h3>
 
     <div class="button-post-action">
-      <button
+      <button *ngIf="isAuthenticated"
         mat-mini-fab
         color="secondary"
         matTooltip="Editar a postagem"
@@ -22,7 +22,7 @@
       >
         <mat-icon class="edit">edit</mat-icon>
       </button>
-      <button
+      <button *ngIf="isAuthenticated"
         mat-mini-fab
         color="secondary"
         matTooltip="Deletar a postagem"
