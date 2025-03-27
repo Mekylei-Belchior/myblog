@@ -1,0 +1,14 @@
+<button mat-icon-button [matMenuTriggerFor]="userMenu">
+    <mat-icon>account_circle</mat-icon>
+</button>
+
+<mat-menu #userMenu="matMenu">
+    <button mat-menu-item (click)="login() " *ngIf="!isAuthenticated">
+        <mat-icon>login</mat-icon>
+        <span>Autenticar</span>
+    </button>
+    <button mat-menu-item (click)="logout()" *ngIf="isAuthenticated">
+        <mat-icon>logout</mat-icon>
+        <span>Revogar credenciais</span>
+    </button>
+</mat-menu>

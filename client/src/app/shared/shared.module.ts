@@ -8,6 +8,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { AuthComponent } from './components/auth/auth.component';
+import { LoginFormDialogComponent } from './components/auth/login-form-dialog/login-form-dialog.component';
 
 @NgModule({
   imports: [
@@ -22,10 +24,11 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
     TagFormComponent,
     TagFieldComponent,
     SearchComponent,
+    AuthComponent,
     FormsModule,
     ReactiveFormsModule,
     MatPaginatorModule,
   ],
-  declarations: [TagFormComponent, TagFieldComponent, SearchComponent, ConfirmDialogComponent, PageNotFoundComponent],
+  declarations: [TagFormComponent, TagFieldComponent, SearchComponent, ConfirmDialogComponent, PageNotFoundComponent, AuthComponent, LoginFormDialogComponent],
 })
-export class SharedModule {}
+export class SharedModule { }

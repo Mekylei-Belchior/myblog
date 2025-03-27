@@ -28,3 +28,7 @@
 .search {
   justify-content: flex-end;
 }
+
+app-auth {
+  margin-left: 20px;
+}

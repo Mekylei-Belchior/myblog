@@ -1,0 +1,17 @@
+.form {
+    min-width: 150px;
+    max-width: 500px;
+    width: 100%;
+  }
+  
+  .full-width {
+    width: 100%;
+  }
+
+  .mat-form-field {
+    margin-bottom: 16px;
+  }
+  
+  button[mat-icon-button] {
+    color: rgba(0, 0, 0, 0.54);
+  }

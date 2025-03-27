@@ -28,12 +28,14 @@ export class NewsDetailsComponent implements OnInit {
     private detailsService: NewsDetailsService,
     private activateRoute: ActivatedRoute,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    this.isAuthenticated = this.authService.isAuthenticated();
-    this.postId = this.activateRoute.snapshot.params.postId;
+    this.authService.isAuthenticated$.subscribe((authStatus) => {
+      this.isAuthenticated = authStatus;
+    });
 
+    this.postId = this.activateRoute.snapshot.params.postId;
     this.news$ = this.newsService.getNewsById(this.postId);
     this.comments$ = this.newsService.getNewsById(this.postId);
   }

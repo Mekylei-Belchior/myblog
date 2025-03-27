@@ -12,9 +12,11 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 
 @NgModule({
   exports: [
+    MatMenuModule,
     MatButtonModule,
     MatToolbarModule,
     MatIconModule,

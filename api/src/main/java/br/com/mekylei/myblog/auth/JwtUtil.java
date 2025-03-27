@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
 import java.util.Date;
 
 @Component
@@ -17,7 +19,8 @@ public class JwtUtil {
 
 
     SecretKey getSigningKey() {
-        return Jwts.SIG.HS256.key().build();
+        byte[] key = Base64.getDecoder().decode(secretKey);
+        return new SecretKeySpec(key, 0, key.length, "HmacSHA256");
     }
 
     public String generateToken(String email) {

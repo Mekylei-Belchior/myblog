@@ -16,7 +16,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate:
         show_sql: false
@@ -28,7 +28,7 @@ spring:
     settings:
       web-allow-others: true
   flyway:
-    enabled: false
+    enabled: true
     baseline-on-migrate: true
     locations: classpath:db/specific/h2
     placeholder-replacement: false
