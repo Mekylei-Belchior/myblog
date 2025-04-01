@@ -15,6 +15,7 @@ CREATE TABLE PUBLIC.users (
 
 -- Inserir registros na tabela users
 INSERT INTO users (name, email, password, created, active) VALUES
+('Administrador', 'adm@email.com', '$2a$12$2S9VpKjZWuJO04l9zN264ur3kd.BwnJQWPIhQwx8h0GSSX/JJewZe', NOW(), TRUE),
 ('Dr. Carlos Silva', 'carlos.silva@email.com', '$2a$12$6WCRXl.w1m4DI8VxWtf6I.O1RR1bjkKBtjLDPHTHM20EUV6UXdbUa', NOW(), TRUE),
 ('Dra. Ana Souza', 'ana.souza@email.com', '$2a$12$6WCRXl.w1m4DI8VxWtf6I.O1RR1bjkKBtjLDPHTHM20EUV6UXdbUa', NOW(), TRUE),
 ('João Pereira', 'joao.pereira@email.com', '$2a$12$6WCRXl.w1m4DI8VxWtf6I.O1RR1bjkKBtjLDPHTHM20EUV6UXdbUa', NOW(), TRUE),
@@ -48,12 +49,11 @@ CREATE TABLE PUBLIC.user_roles (
 
 -- Associar usuários a roles
 INSERT INTO PUBLIC.user_roles (user_id, role_id) VALUES
--- Dr. Carlos Silva é um ADMIN e também um USER
+-- Administrador é um ADMIN e um USER
 (1, 1), -- user_id = 1 (Dr. Carlos Silva), role_id = 1 (ROLE_ADMIN)
 (1, 2), -- user_id = 1 (Dr. Carlos Silva), role_id = 2 (ROLE_USER)
 
--- Dra. Ana Souza é um ADMIN e também um USER
-(2, 1), -- user_id = 2 (Dra. Ana Souza), role_id = 1 (ROLE_ADMIN)
+-- Dra. Ana Souza é um USER
 (2, 2), -- user_id = 2 (Dra. Ana Souza), role_id = 2 (ROLE_USER)
 
 -- João Pereira é um USER
@@ -71,15 +71,17 @@ INSERT INTO PUBLIC.user_roles (user_id, role_id) VALUES
 -- Lucas Oliveira é um USER
 (7, 2), -- user_id = 7 (Lucas Oliveira), role_id = 2 (ROLE_USER)
 
--- Dr. Ricardo Santos é um ADMIN e também um USER
-(8, 1), -- user_id = 8 (Dr. Ricardo Santos), role_id = 1 (ROLE_ADMIN)
+-- Dr. Ricardo Santos é um USER
 (8, 2), -- user_id = 8 (Dr. Ricardo Santos), role_id = 2 (ROLE_USER)
 
 -- Fernanda Costa é um USER
 (9, 2), -- user_id = 9 (Fernanda Costa), role_id = 2 (ROLE_USER)
 
 -- Patrícia Lima é um USER
-(10, 2); -- user_id = 10 (Patrícia Lima), role_id = 2 (ROLE_USER)
+(10, 2), -- user_id = 10 (Patrícia Lima), role_id = 2 (ROLE_USER)
+
+-- Dr. Carlos Silva um USER
+(11, 2); -- user_id = 1 (Dr. Carlos Silva), role_id = 2 (ROLE_USER)
 
 -- Criar tabela News
 CREATE TABLE PUBLIC.news (
