@@ -178,5 +178,13 @@ INSERT INTO news_tags (id, news_tags) VALUES
 (10, 'Educação'),
 (10, 'Infância');
 
+-- Criar tabela RefreshToken
+CREATE TABLE PUBLIC.refreshtoken (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(255) NOT NULL,
+    token VARCHAR(600) UNIQUE NOT NULL,
+    expirydate TIMESTAMP NOT NULL
+);
+
 -- Habilitar novamente a integridade referencial
 SET REFERENTIAL_INTEGRITY TRUE;

@@ -86,4 +86,9 @@ public class ApiExceptionHandler {
         return buildResponse(HttpStatus.NOT_FOUND, exception, "News not found", request);
     }
 
+    @ExceptionHandler(TokenException.class)
+    public ResponseEntity<ErrorResponse> handleTokenFails(TokenException exception, WebRequest request) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, exception, exception.getMessage(), request);
+    }
+
 }

@@ -1,12 +1,11 @@
 package br.com.mekylei.myblog.controllers;
 
-import br.com.mekylei.myblog.auth.JwtUtil;
+import br.com.mekylei.myblog.auth.services.AuthService;
 import br.com.mekylei.myblog.dtos.auth.AuthRequest;
 import br.com.mekylei.myblog.dtos.auth.AuthResponse;
-import br.com.mekylei.myblog.auth.services.CustomUserDetailsService;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
+import br.com.mekylei.myblog.dtos.auth.RefreshRequest;
+import br.com.mekylei.myblog.dtos.auth.Token;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,24 +15,28 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final CustomUserDetailsService userDetailsService;
-    private final JwtUtil jwtUtil;
+    private final AuthService authService;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, CustomUserDetailsService userDetailsService) {
-        this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/login")
     public AuthResponse login(@RequestBody AuthRequest request) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+        Token token = authService.login(request.email(), request.password());
+        return new AuthResponse(token.accessToken(), token.refreshToken());
+    }
 
-        UserDetails user = userDetailsService.loadUserByUsername(request.email());
-        String token = jwtUtil.generateToken(user.getUsername());
+    @PostMapping("/refresh")
+    public AuthResponse refresh(@RequestBody RefreshRequest request) {
+        Token token = authService.refreshToken(request.refreshToken());
+        return new AuthResponse(token.accessToken(), token.refreshToken());
+    }
 
-        return new AuthResponse(token);
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody RefreshRequest request) {
+        authService.deleteToken(request.refreshToken());
+        return ResponseEntity.noContent().build();
     }
 
 }
