@@ -15,7 +15,7 @@ export class NewsDetailsService {
     private dialog: MatDialog,
     private newsService: NewsService,
     private router: Router,
-    private alert: AlertMessageService
+    private alert: AlertMessageService,
   ) {}
 
   /**

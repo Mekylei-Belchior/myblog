@@ -1,34 +1,177 @@
 .toolbar {
+  position: fixed;
+  top: 0;
+  z-index: 2;
   display: flex;
   justify-content: center;
   background-color: #212121;
   height: 85px;
+  padding: 0 16px;
+  width: 100%;
+}
+
+.toolbar-row {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 .logo {
   font-family: "Open Sans", sans-serif;
   color: #fff;
-  padding-right: 2%;
+  font-size: 1.5rem;
+  padding-right: 16px;
+  cursor: pointer;
 }
 
-.toolbar-row {
-  font-size: 1.5rem;
+.menu-button {
+  margin-right: 8px;
+  color: white;
+  display: none;
 }
 
 .toolbar-option-button {
-  padding-right: 2%;
   color: #e9e8e8;
+  font-size: 1rem;
+  margin: 0 8px;
 }
 
 .spacer {
-  flex: 1 1 auto;
-  padding: 3%;
+  flex-grow: 1;
 }
 
-.search {
+.search-container {
+  display: flex;
+  justify-content: center;
+  max-width: 400px;
+}
+
+.auth-container {
+  display: flex;
+  align-items: center;
   justify-content: flex-end;
+  min-width: 80px;
 }
 
 app-auth {
   margin-left: 20px;
+}
+
+.mat-sidenav {
+  width: 250px;
+  background-color: #212121;
+  padding-top: 20px;
+}
+
+.mat-nav-list a {
+  color: #e9e8e8;
+  font-family: "Open Sans", sans-serif;
+  padding: 12px 16px;
+  display: block;
+  transition: background-color 0.3s ease;
+}
+
+.mat-nav-list a:hover,
+.mat-nav-list a:active {
+  background-color: #424242 !important;
+  cursor: pointer;
+}
+
+.mat-nav-list .mat-list-item {
+  height: 48px;
+}
+
+.sidenav-container-open {
+  position: fixed;
+  top: 70px;
+  height: calc(100vh - 70px);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.sidenav-container-open mat-sidenav {
+  position: absolute;
+  width: 250px;
+  background-color: #212121;
+  padding-top: 20px;
+}
+
+.sidenav-container-close {
+  z-index: -1;
+}
+
+mat-divider {
+  margin: 10px 10px;
+  border-top-color: #8a8888;
+  border-top-width: 2px;
+}
+
+@media (max-width: 1400px) {
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 1200px) {
+  .toolbar {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 992px) {
+  .toolbar {
+    padding: 0 12px;
+  }
+
+  .logo {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .toolbar {
+    height: 70px;
+    padding: 0 8px;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+    padding-right: 8px;
+  }
+
+  .toolbar-row {
+    font-size: 1.2rem;
+    padding: 0;
+  }
+
+  .menu-button {
+    display: block;
+  }
+
+  .nav-links {
+    display: none !important;
+  }
+
+  .search-container {
+    display: none;
+  }
+
+  .auth-container {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .logo {
+    font-size: 1rem;
+  }
+
+  app-auth {
+    margin-left: 10px;
+  }
 }

@@ -6,6 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
 
 import { HeaderComponent } from './header.component';
 
@@ -19,7 +21,9 @@ import { HeaderComponent } from './header.component';
     MatTooltipModule,
     FlexLayoutModule,
     SharedModule,
+    MatSidenavModule,
+    MatListModule,
   ],
   exports: [HeaderComponent],
 })
-export class HeaderModule {}
+export class HeaderModule { }

@@ -9,6 +9,7 @@ import { CommentFormDialogComponent } from './comment-form-dialog/comment-form-d
 import { EditFormDialogComponent } from './edit-form-dialog/edit-form-dialog.component';
 import { NewsDetailsService } from './news-details.service';
 import { AuthService } from 'src/app/auth/auth.service';
+import { FooterService } from 'src/app/shared/services/footer-service';
 
 @Component({
   selector: 'app-news-details',
@@ -27,7 +28,8 @@ export class NewsDetailsComponent implements OnInit {
     private newsService: NewsService,
     private detailsService: NewsDetailsService,
     private activateRoute: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private footerService: FooterService,
   ) { }
 
   ngOnInit(): void {
@@ -35,6 +37,7 @@ export class NewsDetailsComponent implements OnInit {
       this.isAuthenticated = authStatus;
     });
 
+    this.footerService.hide();
     this.postId = this.activateRoute.snapshot.params.postId;
     this.news$ = this.newsService.getNewsById(this.postId);
     this.comments$ = this.newsService.getNewsById(this.postId);

@@ -35,7 +35,6 @@ registerLocaleData(localePt);
       useClass: JwtInterceptor,
       multi: true,
     },
-
   ],
   bootstrap: [AppComponent],
 })

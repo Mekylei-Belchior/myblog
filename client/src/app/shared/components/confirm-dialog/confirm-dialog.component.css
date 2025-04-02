@@ -1,1 +1,51 @@
+.container {
+    padding: 24px;
+    min-width: 300px;
+    max-width: 80vw;
+    display: flex;
+    flex-direction: column;
+}
 
+h1.mat-dialog-title {
+    margin: 0 0 16px 0;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.mat-dialog-content {
+    margin: 0 0 24px 0;
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.mat-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+}
+
+.mat-dialog-actions button {
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .container {
+        min-width: 60vw;
+        padding: 12px;
+    }
+
+    .mat-dialog-actions {
+        display: flex;
+        justify-items: center;
+        gap: 12px;
+    }
+
+    .mat-dialog-actions button {
+        width: 100%;
+    }
+}

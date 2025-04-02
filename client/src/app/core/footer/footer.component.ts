@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FooterService } from 'src/app/shared/services/footer-service';
 
 @Component({
   selector: 'app-footer',
@@ -6,7 +7,11 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./footer.component.css'],
 })
 export class FooterComponent implements OnInit {
-  constructor() {}
+  public showFooter$ = this.footerService.showFooter$;
+
+  constructor(
+    private footerService: FooterService
+  ) {}
 
   ngOnInit(): void {}
 

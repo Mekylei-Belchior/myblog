@@ -1,5 +1,5 @@
 .container {
-  margin-top: 2%;
+  margin-top: 10%;
   min-height: 1200px;
 }
 
@@ -15,10 +15,16 @@
   color: #353436;
 }
 
+.header h1 {
+  font-size: 3rem;
+  font-weight: bold;
+}
+
 .add {
-  display: flex;
-  justify-content: flex-end;
+  position: fixed;
   margin-right: 1%;
+  right: 0;
+  top: 15%;
 }
 
 .card {
@@ -36,7 +42,8 @@
   display: flex;
   justify-content: center;
   size: 50%;
-  margin-top: 5%;
+  margin-top: 2%;
+  margin-bottom: 4%;
 }
 
 .not-found-news {
@@ -47,4 +54,137 @@
 img {
   height: 50%;
   width: 25%;
+}
+
+@media (max-width: 7680px) {
+  .container {
+    margin-top: 10%;
+  }
+
+  .container-no-news {
+    margin-top: 10%;
+  }
+
+  .header h1 {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin-bottom: 5%;
+  }
+
+  .add {
+    z-index: 4;
+  }
+
+  .card {
+    width: 84%;
+  }
+
+  .paginator {
+    margin-bottom: 2%;
+  }
+}
+
+
+@media (max-width: 1366px) {
+  .container {
+    margin-top: 15%;
+  }
+
+  .container-no-news {
+    margin-top: 15%;
+  }
+
+  .header h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 10%;
+  }
+
+  .add {
+    z-index: 4;
+  }
+
+  .card {
+    width: 75%;
+  }
+
+  .paginator {
+    margin-bottom: 4%;
+  }
+}
+
+@media (max-width: 992px) {
+  .container {
+    margin-top: 20%;
+  }
+
+  .container-no-news {
+    margin-top: 20%;
+  }
+
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+
+  .add {
+    z-index: 4;
+  }
+
+  .card {
+    width: 75%;
+  }
+
+  .paginator {
+    margin-bottom: 6%;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    margin-top: 20%;
+  }
+
+  .container-no-news {
+    margin-top: 20%;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+
+  .add {
+    z-index: 4;
+  }
+
+  .card {
+    width: 70%;
+  }
+
+  .paginator {
+    margin-bottom: 8%;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    margin-top: 25%;
+  }
+
+  .container-no-news {
+    margin-top: 25%;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .card {
+    width: 90%;
+  }
+
+  .paginator {
+    margin-bottom: 10%;
+  }
 }

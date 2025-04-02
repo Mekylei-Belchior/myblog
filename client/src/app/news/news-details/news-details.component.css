@@ -1,12 +1,12 @@
 .container {
   color: #353535;
-  margin-top: 5%;
+  margin-top: 10%;
   min-height: 800px;
 }
 
 h1 {
   font-size: 3rem;
-  font-weight: 1rem;
+  font-weight: bold;
 }
 
 h3 {
@@ -79,3 +79,13 @@ h3 {
 .add-comment {
   color: #077227;
 }
+
+@media (max-width: 7680px) {}
+
+@media (max-width: 1366px) {}
+
+@media (max-width: 992px) {}
+
+@media (max-width: 768px) {}
+
+@media (max-width: 576px) {}
