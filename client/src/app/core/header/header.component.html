@@ -33,8 +33,8 @@
     <mat-nav-list>
       <a mat-list-item (click)="goHome(); isMenuOpen = false">Home</a>
       <a mat-list-item (click)="goPostagem(); isMenuOpen = false">Postagens</a>
-      <mat-divider></mat-divider>
-      <a mat-list-item (click)="addNews(); isMenuOpen = false"><mat-icon>add</mat-icon>Nova postagem</a>
+      <mat-divider *ngIf="isPostRouteActive()"></mat-divider>
+      <a *ngIf="isPostRouteActive()" mat-list-item (click)="addNews(); isMenuOpen = false"><mat-icon>add</mat-icon>Nova postagem</a>
     </mat-nav-list>
   </mat-sidenav>
 
