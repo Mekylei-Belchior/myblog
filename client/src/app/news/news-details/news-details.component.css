@@ -92,6 +92,10 @@ h3 {
     text-align: center;
     font-size: 3rem;
   }
+
+  .coments-painel {
+    margin-bottom: 10%;
+  }
 }
 
 @media (max-width: 1366px) {
@@ -103,6 +107,10 @@ h3 {
     display: inline-block;
     text-align: center;
     font-size: 2.5rem;
+  }
+
+  .coments-painel {
+    margin-bottom: 15%;
   }
 }
 
@@ -116,6 +124,10 @@ h3 {
     text-align: center;
     font-size: 2rem;
   }
+
+  .coments-painel {
+    margin-bottom: 15%;
+  }
 }
 
 @media (max-width: 768px) {
@@ -128,6 +140,10 @@ h3 {
     text-align: center;
     font-size: 2rem;
   }
+
+  .coments-painel {
+    margin-bottom: 15%;
+  }
 }
 
 @media (max-width: 576px) {
@@ -139,5 +155,9 @@ h3 {
     display: inline-block;
     text-align: center;
     font-size: 1.5rem;
+  }
+
+  .coments-painel {
+    margin-bottom: 20%;
   }
 }
