@@ -28,10 +28,12 @@ export class AuthComponent implements OnInit {
   }
 
   logout(): void {
-    this.authService.logout();
-    this.isAuthenticated = false;
-
-    this.alert.showMessage('Revogação de credenciais realizada com sucesso!');
+    this.authService.logout().subscribe({
+      complete: () => {
+        this.isAuthenticated = false;
+        this.alert.showMessage('Revogação de credenciais realizada com sucesso!');
+      }
+    });
   }
 
 }
