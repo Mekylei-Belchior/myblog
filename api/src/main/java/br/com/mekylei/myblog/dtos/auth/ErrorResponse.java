@@ -1,6 +1,6 @@
 package br.com.mekylei.myblog.dtos.auth;
 
-import br.com.mekylei.myblog.utils.DataUtil;
+import br.com.mekylei.myblog.utils.DateUtil;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
@@ -13,7 +13,7 @@ public record ErrorResponse(
         String path) {
 
     public ErrorResponse(Instant timestamp, int status, String error, String message, String path) {
-        this(DataUtil.formatInstant(timestamp), status, error, message, path);
+        this(DateUtil.formatInstant(timestamp), status, error, message, path);
     }
 
 }

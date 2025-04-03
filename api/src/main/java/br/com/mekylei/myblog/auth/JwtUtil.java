@@ -1,6 +1,6 @@
 package br.com.mekylei.myblog.auth;
 
-import br.com.mekylei.myblog.utils.DataUtil;
+import br.com.mekylei.myblog.utils.DateUtil;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -46,8 +46,8 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .subject(email)
-                .issuedAt(DataUtil.toDate(now))
-                .expiration(DataUtil.toDate(expiry))
+                .issuedAt(DateUtil.toDate(now))
+                .expiration(DateUtil.toDate(expiry))
                 .signWith(getSigningKey())
                 .compact();
     }

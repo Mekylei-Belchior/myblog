@@ -2,7 +2,7 @@ package br.com.mekylei.myblog.dtos.news;
 
 import br.com.mekylei.myblog.dtos.comment.FullCommentDTO;
 import br.com.mekylei.myblog.models.News;
-import br.com.mekylei.myblog.utils.DataUtil;
+import br.com.mekylei.myblog.utils.DateUtil;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public record FullNewsDTO(Long id,
                 news.getId(),
                 news.getTitle(),
                 news.getAuthor(),
-                DataUtil.formatDateTime(news.getDate()),
+                DateUtil.formatDateTime(news.getDate()),
                 news.getContent(),
                 news.toFullComment(),
                 news.getTags()

@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
 
-public class DataUtil {
+public class DateUtil {
 
     public static String formatInstant(Instant timestamp) {
         Locale systemLocale = Locale.getDefault();
