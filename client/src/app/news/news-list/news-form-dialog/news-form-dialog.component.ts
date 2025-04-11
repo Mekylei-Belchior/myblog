@@ -67,11 +67,11 @@ export class NewsFormDialogComponent implements OnInit {
           this.newsService.getAllNews().subscribe((response) => {
             this.dialogRef.close(response);
             this.newsForm.reset();
-            this.alert.showMessage('Nova postagem criada com sucesso!');
+            this.alert.showSuccess('Nova postagem criada com sucesso!');
           });
         },
         (error) => {
-          this.alert.showMessage('A nova postagem não pode ser criada!');
+          this.alert.showError('A nova postagem não pode ser criada!');
           this.debug.error(error, 'NewsFormDialogComponent.createNews', {
             message: 'A nova postagem não pode ser criada!',
           });

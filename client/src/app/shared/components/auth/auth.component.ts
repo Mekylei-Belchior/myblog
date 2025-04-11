@@ -32,7 +32,7 @@ export class AuthComponent implements OnInit {
     this.authService.logout().subscribe({
       complete: () => {
         this.isAuthenticated = false;
-        this.alert.showMessage(
+        this.alert.showSuccess(
           'Revogação de credenciais realizada com sucesso!'
         );
       },

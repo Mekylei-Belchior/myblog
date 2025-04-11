@@ -78,13 +78,11 @@ export class NewsDetailsService {
         this.newsService.delete(postId).subscribe(
           () => {
             this.router.navigate(['/postagem']);
-            this.alert.showMessage('A postagem foi excluída com sucesso!');
+            this.alert.showSuccess('A postagem foi excluída com sucesso!');
           },
           (error) => {
-            this.alert.showMessage('A postagem não pode ser excluída!');
-            this.debug.error(error, 'NewsDetailsService.delete', {
-              message: 'A postagem não pode ser excluída!',
-            });
+            this.alert.showError('A postagem não pode ser excluída!');
+            this.debug.error(error, 'NewsDetailsService.delete');
           }
         );
       }

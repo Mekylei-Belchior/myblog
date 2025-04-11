@@ -44,10 +44,10 @@ export class LoginFormDialogComponent implements OnInit {
     this.authService.login(credentials).subscribe(
       () => {
         this.dialogRef.close(true);
-        this.alert.showMessage('Autenticação realizada com sucesso!');
+        this.alert.showSuccess('Autenticação realizada com sucesso!');
       },
       () => {
-        this.alert.showMessage('E-mail ou senha incorretos');
+        this.alert.showError('E-mail ou senha incorretos');
       }
     );
   }

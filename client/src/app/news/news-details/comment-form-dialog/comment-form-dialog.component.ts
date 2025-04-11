@@ -39,16 +39,17 @@ export class CommentFormDialogComponent implements OnInit {
       // Call the service method that handler endpoint comment creation
       this.newsService
         .comment(this.commentForm.value, this.post.data.id)
-        .subscribe((error) => {
-          this.alert.showMessage('Commentário não criado!');
-          this.debug.error(error, 'CommentFormDialogComponent.createComment', {
-            message: 'Commentário não criado!',
-          });
-        });
+        .subscribe(
+          () => {},
+          (error) => {
+            this.alert.showError('Commentário não pode ser adicionado!');
+            this.debug.error(error, 'CommentFormDialogComponent.createComment');
+          }
+        );
 
       this.dialogRef.close(true);
       this.commentForm.reset();
-      this.alert.showMessage('Commentário criado com sucesso!');
+      this.alert.showSuccess('Commentário adicionado com sucesso!');
     }
   }
 

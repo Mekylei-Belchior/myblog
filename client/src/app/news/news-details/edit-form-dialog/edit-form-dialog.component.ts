@@ -67,8 +67,9 @@ export class EditFormDialogComponent implements OnInit {
 
       // Call the service method that handler endpoint news updates
       this.newsService.update(news, this.post.data.id).subscribe(
+        () => {},
         (error) => {
-          this.alert.showMessage('A postagem não pode ser atualizada!');
+          this.alert.showError('A postagem não pode ser atualizada!');
           this.debug.error(error, 'EditFormDialogComponent.editNews', {
             message: 'A postagem não pode ser atualizada!'
           });
@@ -77,7 +78,7 @@ export class EditFormDialogComponent implements OnInit {
 
       this.dialogRef.close(true);
       this.newsEditForm.reset();
-      this.alert.showMessage('A postagem foi atualizada com sucesso!');
+      this.alert.showSuccess('A postagem foi atualizada com sucesso!');
     }
   }
 
