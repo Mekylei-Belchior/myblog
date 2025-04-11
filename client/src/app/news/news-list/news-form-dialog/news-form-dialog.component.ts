@@ -72,9 +72,7 @@ export class NewsFormDialogComponent implements OnInit {
         },
         (error) => {
           this.alert.showError('A nova postagem não pode ser criada!');
-          this.debug.error(error, 'NewsFormDialogComponent.createNews', {
-            message: 'A nova postagem não pode ser criada!',
-          });
+          this.debug.error(error, 'NewsFormDialogComponent.createNews');
         }
       );
     }

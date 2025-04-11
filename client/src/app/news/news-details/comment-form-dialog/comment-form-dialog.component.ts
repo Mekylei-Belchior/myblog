@@ -40,16 +40,16 @@ export class CommentFormDialogComponent implements OnInit {
       this.newsService
         .comment(this.commentForm.value, this.post.data.id)
         .subscribe(
-          () => {},
+          () => {
+            this.dialogRef.close(true);
+            this.commentForm.reset();
+            this.alert.showSuccess('Commentário adicionado com sucesso!');
+          },
           (error) => {
             this.alert.showError('Commentário não pode ser adicionado!');
             this.debug.error(error, 'CommentFormDialogComponent.createComment');
           }
         );
-
-      this.dialogRef.close(true);
-      this.commentForm.reset();
-      this.alert.showSuccess('Commentário adicionado com sucesso!');
     }
   }
 
