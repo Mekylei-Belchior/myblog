@@ -32,15 +32,16 @@ export class NewsListComponent implements OnInit, OnDestroy {
     private footerService: FooterService,
     public screen: ScreenService,
     private debug: DebugUtil
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.footerService.hide();
     this.getNews();
 
-    this.addNewsSubscription = this.newsCommunicationService.addNewsTriggered$.subscribe(() => {
-      this.addNews();
-    });
+    this.addNewsSubscription =
+      this.newsCommunicationService.addNewsTriggered$.subscribe(() => {
+        this.addNews();
+      });
   }
 
   ngOnDestroy(): void {

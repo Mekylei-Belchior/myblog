@@ -7,7 +7,7 @@ import { AlertMessageService } from '../../services/alert-message.service';
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.component.html',
-  styleUrls: ['./auth.component.css']
+  styleUrls: ['./auth.component.css'],
 })
 export class AuthComponent implements OnInit {
   public isAuthenticated = false;
@@ -15,7 +15,8 @@ export class AuthComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private dialog: MatDialog,
-    private alert: AlertMessageService) { }
+    private alert: AlertMessageService
+  ) {}
 
   ngOnInit(): void {
     this.authService.isAuthenticated$.subscribe((authStatus) => {
@@ -31,9 +32,10 @@ export class AuthComponent implements OnInit {
     this.authService.logout().subscribe({
       complete: () => {
         this.isAuthenticated = false;
-        this.alert.showMessage('Revogação de credenciais realizada com sucesso!');
-      }
+        this.alert.showMessage(
+          'Revogação de credenciais realizada com sucesso!'
+        );
+      },
     });
   }
-
 }

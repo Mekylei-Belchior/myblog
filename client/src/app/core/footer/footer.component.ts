@@ -9,9 +9,7 @@ import { FooterService } from 'src/app/shared/services/footer-service';
 export class FooterComponent implements OnInit {
   public showFooter$ = this.footerService.showFooter$;
 
-  constructor(
-    private footerService: FooterService
-  ) {}
+  constructor(private footerService: FooterService) {}
 
   ngOnInit(): void {}
 

@@ -16,18 +16,18 @@ export class HeaderComponent implements OnInit {
   constructor(
     private router: Router,
     private newsCommunicationService: NewsCommunicationService,
-    public screen: ScreenService,
-  ) { }
+    public screen: ScreenService
+  ) {}
 
-  ngOnInit(): void { }
+  ngOnInit(): void {}
 
   /**
    * Checks if the current active route matches exactly '/postagem'.
-   * 
-   * This method uses Angular's Router to determine if the current active route 
-   * is exactly the post route ('/postagem'), ignoring any query parameters, 
+   *
+   * This method uses Angular's Router to determine if the current active route
+   * is exactly the post route ('/postagem'), ignoring any query parameters,
    * fragments or matrix parameters.
-   * 
+   *
    * @returns {boolean} - Returns `true` if the current route is exactly '/postagem', `false` otherwise.
    */
   isPostRouteActive(): boolean {

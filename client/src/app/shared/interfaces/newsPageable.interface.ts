@@ -12,7 +12,7 @@ interface Embedded {
 
 interface Links {
   self: {
-      href: string;
+    href: string;
   };
 }
 

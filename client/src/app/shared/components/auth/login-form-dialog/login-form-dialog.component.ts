@@ -19,7 +19,7 @@ export class LoginFormDialogComponent implements OnInit {
     private dialogRef: MatDialogRef<LoginFormDialogComponent>,
     private authService: AuthService,
     private alert: AlertMessageService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
