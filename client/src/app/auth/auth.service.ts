@@ -5,6 +5,7 @@ import { catchError, finalize, map, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Credentials } from '../shared/components/auth/credentials';
 import { AuthResponse } from '../shared/interfaces/auth.interface';
+import { DebugUtil } from '../shared/utils/debug.util';
 
 
 // The standard API URL
@@ -24,7 +25,10 @@ export class AuthService {
     public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
     private tokenRefreshTimeout: any;
 
-    constructor(private httpClient: HttpClient) { }
+    constructor(
+        private httpClient: HttpClient,
+        private debug: DebugUtil
+    ) { }
 
     /**
      * Authenticates user with credentials and manages JWT tokens
@@ -59,11 +63,11 @@ export class AuthService {
                             // Set a schedule to refresh the token 5 minutes before expiration
                             this.scheduleTokenRefresh((response.expiresIn * 1000) - this.FIVE_MINUTES);
                         } else {
-                            console.error('Token JWT não recebido:', response);
+                            this.debug.error('Token JWT não recebido', 'AuthService.login', { token: response });
                         }
                     },
                     error: (err) => {
-                        console.error('Erro no login:', err.error);
+                        this.debug.error(err.error, 'AuthService.login');
                     }
                 }),
                 catchError(error => {
@@ -147,7 +151,7 @@ export class AuthService {
             return this.httpClient.post<void>(`${API}/auth/logout`, { refreshToken }, this.httpOptions)
                 .pipe(
                     catchError(error => {
-                        console.error('Erro no logout:', error);
+                        this.debug.error('Erro no logout', 'AuthService.logout', { error: error });
                         return of(undefined);
                     }),
                     map(() => undefined),

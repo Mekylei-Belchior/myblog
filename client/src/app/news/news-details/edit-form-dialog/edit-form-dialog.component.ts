@@ -6,6 +6,7 @@ import { News } from '../../news';
 import { FullNews } from './../../../shared/interfaces/fullNews.interface';
 import { AlertMessageService } from './../../../shared/services/alert-message.service';
 import { NewsService } from './../../news.service';
+import { DebugUtil } from 'src/app/shared/utils/debug.util';
 
 @Component({
   selector: 'app-edit-form-dialog',
@@ -22,7 +23,8 @@ export class EditFormDialogComponent implements OnInit {
     private dialogRef: MatDialogRef<EditFormDialogComponent>,
     private newsService: NewsService,
     private alert: AlertMessageService,
-    @Inject(MAT_DIALOG_DATA) public post: { data: FullNews }
+    @Inject(MAT_DIALOG_DATA) public post: { data: FullNews },
+    private debug: DebugUtil
   ) {}
 
   ngOnInit(): void {
@@ -65,9 +67,11 @@ export class EditFormDialogComponent implements OnInit {
 
       // Call the service method that handler endpoint news updates
       this.newsService.update(news, this.post.data.id).subscribe(
-        (response) => {},
-        (erros) => {
-          console.log(erros);
+        (error) => {
+          this.alert.showMessage('A postagem não pode ser atualizada!');
+          this.debug.error(error, 'EditFormDialogComponent.editNews', {
+            message: 'A postagem não pode ser atualizada!'
+          });
         }
       );
 

@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ListOfNews } from 'src/app/shared/interfaces/ResponseNews.interface';
 
 import { NewsService } from '../news.service';
+import { DebugUtil } from 'src/app/shared/utils/debug.util';
 
 @Component({
   selector: 'app-news-search',
@@ -20,7 +21,8 @@ export class NewsSearchComponent implements OnInit {
 
   constructor(
     private newsService: NewsService,
-    private activeRoute: ActivatedRoute
+    private activeRoute: ActivatedRoute,
+    private debug: DebugUtil
   ) {
     this.activeRoute.params.subscribe((param) => {
       this.title = param.title;
@@ -48,7 +50,9 @@ export class NewsSearchComponent implements OnInit {
           this.pageSize = news.page.size;
         },
         (error) => {
-          console.log(error);
+          this.debug.error(error, 'NewsSearchComponent.pageEvent', {
+            message: 'Paginação não realizada',
+          });
         }
       );
   }
@@ -73,7 +77,9 @@ export class NewsSearchComponent implements OnInit {
         this.pageSize = news.page.size;
       },
       (error) => {
-        console.log(error);
+        this.debug.error(error, 'NewsSearchComponent.pageEvent', {
+          message: 'Não foi possível recuperar a postagem pelo título',
+        });
       }
     );
   }

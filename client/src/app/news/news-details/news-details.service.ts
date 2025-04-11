@@ -6,6 +6,7 @@ import { AlertMessageService } from 'src/app/shared/services/alert-message.servi
 
 import { NewsService } from './../news.service';
 import { NewsDetailsComponent } from './news-details.component';
+import { DebugUtil } from 'src/app/shared/utils/debug.util';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,7 @@ export class NewsDetailsService {
     private newsService: NewsService,
     private router: Router,
     private alert: AlertMessageService,
+    private debug: DebugUtil
   ) {}
 
   /**
@@ -79,7 +81,10 @@ export class NewsDetailsService {
             this.alert.showMessage('A postagem foi excluída com sucesso!');
           },
           (error) => {
-            console.log(error);
+            this.alert.showMessage('A postagem não pode ser excluída!');
+            this.debug.error(error, 'NewsDetailsService.delete', {
+              message: 'A postagem não pode ser excluída!',
+            });
           }
         );
       }

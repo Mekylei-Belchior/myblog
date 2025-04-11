@@ -8,7 +8,7 @@ import { Credentials } from 'src/app/shared/components/auth/credentials';
 @Component({
   selector: 'app-login-form-dialog',
   templateUrl: './login-form-dialog.component.html',
-  styleUrls: ['./login-form-dialog.component.css']
+  styleUrls: ['./login-form-dialog.component.css'],
 })
 export class LoginFormDialogComponent implements OnInit {
   public loginForm!: FormGroup;
@@ -41,12 +41,13 @@ export class LoginFormDialogComponent implements OnInit {
     const credentials: Credentials = this.loginForm.value;
 
     // Call the service method that handler login endpoint
-    this.authService.login(credentials).subscribe(() => {
-      this.dialogRef.close(true);
-      this.alert.showMessage('Autenticação realizada com sucesso!');
-    },
-      (error) => {
-        this.handleLoginError(error);
+    this.authService.login(credentials).subscribe(
+      () => {
+        this.dialogRef.close(true);
+        this.alert.showMessage('Autenticação realizada com sucesso!');
+      },
+      () => {
+        this.alert.showMessage('E-mail ou senha incorretos');
       }
     );
   }
@@ -55,17 +56,9 @@ export class LoginFormDialogComponent implements OnInit {
    * Mark as touched when validation has not passed
    */
   private markFormAsTouched(): void {
-    Object.values(this.loginForm.controls).forEach(control => {
+    Object.values(this.loginForm.controls).forEach((control) => {
       control.markAsTouched();
     });
-  }
-
-  /**
-   * Handler authentication errors
-   * @param error the error in the authentication
-   */
-  private handleLoginError(error: any): void {
-    this.alert.showMessage('E-mail ou senha incorretos');
   }
 
   /**
@@ -74,5 +67,4 @@ export class LoginFormDialogComponent implements OnInit {
   public cancel(): void {
     this.dialogRef.close(false);
   }
-
 }

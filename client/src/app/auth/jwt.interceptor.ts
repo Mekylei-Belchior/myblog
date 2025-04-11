@@ -3,11 +3,15 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { DebugUtil } from '../shared/utils/debug.util';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
 
-    constructor(private authService: AuthService) { }
+    constructor(
+        private authService: AuthService,
+        private debug: DebugUtil,
+    ) { }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         // Ignores login and refresh request
@@ -22,7 +26,7 @@ export class JwtInterceptor implements HttpInterceptor {
 
         return next.handle(request).pipe(
             catchError(error => {
-                console.error(error);
+                this.debug.error('Erro na requisição', 'JwtInterceptor.intercept', { error: error });
                 return throwError(error);
             })
         );

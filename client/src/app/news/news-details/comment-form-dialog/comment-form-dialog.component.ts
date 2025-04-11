@@ -5,6 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FullNews } from './../../../shared/interfaces/fullNews.interface';
 import { AlertMessageService } from './../../../shared/services/alert-message.service';
 import { NewsService } from './../../news.service';
+import { DebugUtil } from 'src/app/shared/utils/debug.util';
 
 @Component({
   selector: 'app-comment-form-dialog',
@@ -19,7 +20,8 @@ export class CommentFormDialogComponent implements OnInit {
     private dialogRef: MatDialogRef<CommentFormDialogComponent>,
     private newsService: NewsService,
     private alert: AlertMessageService,
-    @Inject(MAT_DIALOG_DATA) public post: { data: FullNews }
+    @Inject(MAT_DIALOG_DATA) public post: { data: FullNews },
+    private debug: DebugUtil
   ) {}
 
   ngOnInit(): void {
@@ -37,12 +39,12 @@ export class CommentFormDialogComponent implements OnInit {
       // Call the service method that handler endpoint comment creation
       this.newsService
         .comment(this.commentForm.value, this.post.data.id)
-        .subscribe(
-          (response) => {},
-          (error) => {
-            console.log(error);
-          }
-        );
+        .subscribe((error) => {
+          this.alert.showMessage('Commentário não criado!');
+          this.debug.error(error, 'CommentFormDialogComponent.createComment', {
+            message: 'Commentário não criado!',
+          });
+        });
 
       this.dialogRef.close(true);
       this.commentForm.reset();

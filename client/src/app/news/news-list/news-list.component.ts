@@ -9,6 +9,7 @@ import { FooterService } from 'src/app/shared/services/footer-service';
 import { ScreenService } from 'src/app/shared/services/screen-service';
 import { Subscription } from 'rxjs';
 import { NewsCommunicationService } from '../news-communication-service';
+import { DebugUtil } from 'src/app/shared/utils/debug.util';
 
 @Component({
   selector: 'app-news-list',
@@ -30,6 +31,7 @@ export class NewsListComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private footerService: FooterService,
     public screen: ScreenService,
+    private debug: DebugUtil
   ) { }
 
   ngOnInit(): void {
@@ -72,7 +74,9 @@ export class NewsListComponent implements OnInit, OnDestroy {
         this.pageSize = news.page?.size || 0;
       },
       (error) => {
-        console.log(error);
+        this.debug.error(error, 'NewsListComponent.getNews', {
+          message: 'As postagem não puderam ser obtidas',
+        });
       }
     );
   }
@@ -89,7 +93,9 @@ export class NewsListComponent implements OnInit, OnDestroy {
         this.pageSize = news.page?.size || 0;
       },
       (error) => {
-        console.log(error);
+        this.debug.error(error, 'NewsListComponent.pageEvent', {
+          message: 'Paginação não realizada',
+        });
       }
     );
   }

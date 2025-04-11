@@ -5,6 +5,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { News } from '../../news';
 import { AlertMessageService } from './../../../shared/services/alert-message.service';
 import { NewsService } from './../../news.service';
+import { DebugUtil } from 'src/app/shared/utils/debug.util';
 
 @Component({
   selector: 'app-news-form-dialog',
@@ -19,7 +20,8 @@ export class NewsFormDialogComponent implements OnInit {
     private formBuilder: FormBuilder,
     private dialogRef: MatDialogRef<NewsFormDialogComponent>,
     private newsService: NewsService,
-    private alert: AlertMessageService
+    private alert: AlertMessageService,
+    private debug: DebugUtil
   ) {}
 
   ngOnInit(): void {
@@ -69,7 +71,10 @@ export class NewsFormDialogComponent implements OnInit {
           });
         },
         (error) => {
-          console.log(error);
+          this.alert.showMessage('A nova postagem não pode ser criada!');
+          this.debug.error(error, 'NewsFormDialogComponent.createNews', {
+            message: 'A nova postagem não pode ser criada!',
+          });
         }
       );
     }
