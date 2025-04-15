@@ -6,7 +6,9 @@
         <mat-icon>menu</mat-icon>
       </button>
 
-      <span class="logo"><strong>MYBLOG</strong></span>
+      <button class="logo-button" (click)="goHome()">
+        <span class="logo"><strong>MYBLOG</strong></span>
+      </button>      
 
       <div class="nav-links" *ngIf="screen.isDesktop()">
         <button class="toolbar-option-button" mat-button (click)="goHome()">Home</button>

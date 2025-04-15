@@ -1,4 +1,5 @@
 .container {
+  position: relative;
   margin-top: 10%;
   min-height: 1200px;
 }
@@ -21,10 +22,12 @@
 }
 
 .add {
-  position: fixed;
+  position: sticky;
   margin-right: 1%;
-  right: 0;
-  top: 15%;
+  float: right;
+  top: 20%;
+  z-index: 4;
+  align-self: flex-end;
 }
 
 .card {
