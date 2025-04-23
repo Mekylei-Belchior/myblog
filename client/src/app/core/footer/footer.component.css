@@ -29,6 +29,10 @@ p {
 
 @media (max-width: 576px) {
   p {
-    font-size: 0.55rem;
+    font-size: 0.6rem;
+  }
+
+  .footer {
+    height: 150px;
   }
 }
