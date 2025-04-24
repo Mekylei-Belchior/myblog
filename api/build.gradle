@@ -34,3 +34,8 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+tasks.bootJar {
+    archiveFileName = "api-myblog.jar"
+    // archiveFileName = "${project.name}-${project.version}.jar"
+}
