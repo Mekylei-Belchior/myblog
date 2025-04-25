@@ -129,4 +129,5 @@ http://localhost:8080/h2-console
 - Somente usuário logado pode criar postagem
 - Editar e excluir comentário
 - Usuário que criou a postagem pode excluí-la
-- Atualizar o Angular, Angular Material e outras dependências 
+- Atualizar o Angular, Angular Material e outras dependências
+- Adicionar testes unitários
