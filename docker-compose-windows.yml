@@ -14,7 +14,7 @@ services:
     container_name: client-myblog
     build:
       context: client
-      dockerfile: client/Dockerfile-Client-Windows
+      dockerfile: Dockerfile-Client-Windows
       args:
         API_BASE_URL: http://127.0.0.1:8080
     ports:

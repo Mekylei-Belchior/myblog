@@ -2,7 +2,7 @@
 
 MyBlog é uma simples aplicação fullstack desenvolvida utilizando Spring Boot e H2 Database no backend e Angular no frontend.
 
-## INFORMAÇÕES  
+## INFORMAÇÕES
 
 - Java 21
 - Spring Boot 3.4.3
@@ -10,29 +10,43 @@ MyBlog é uma simples aplicação fullstack desenvolvida utilizando Spring Boot 
 - Flyway
 - H2 Database
 - Angular 10.1.6
-- Angular Material 10.2.7  
+- Angular Material 10.2.7
 
 ## COMO RODAR O PROJETO UTILIZANDO O DOCKER
 
-Você pode rodar o projeto seguindo os passos abaixo:  
+Você pode rodar o projeto seguindo os passos abaixo:
 
 1. Com o docker rodando em sua máquina, abra um terminal no diretório raíz do projeto ao qual contém os arquivos do docker-compose e rode os comandos para construir e rodar a aplicação.
 
-```
 Linux
+```bash
 
 docker-compose build
 docker-compose build --no-cache (build desconsiderando caches)
+```
 
-Windows
+Windows (PowerShell)
+```powershell
 
 docker-compose -f docker-compose-windows.yml build
 docker-compose -f docker-compose-windows.yml build --no-cache
-
 ```
 
 
-1. Rode o comando `docker-compose up` para o Linux e `docker-compose -f docker-compose-windows.yml up` para o Windows. Aguarde o processamento das informações e após a conclusão acesse a aplicação no endereço: http://localhost:8082/
+1. Rode os comandos abaixo e aguarde o processamento das informações. Após a conclusão acesse a aplicação no endereço: http://localhost:8082/
+
+Linux
+```bash
+
+docker-compose up
+
+```
+Windows (PowerShell)
+```powershell
+
+docker-compose -f docker-compose-windows.yml up
+
+```
 
 1. Para finalizar o container, rode o comando `docker-compose down` para o Linux e `docker-compose -f docker-compose-windows.yml down` para o Windows.
 
@@ -42,27 +56,50 @@ Caso queria testar somente a API, siga os passos abaixo:
 
 1. No diretório raíz da API `api/` abra o terminal apontando para o diretório citado e rode o comando:
 
-```
 Linux
+```bash
 
-JWT_SECRET=sua_jwt_secret ./gradlew build
+JWT_SECRET=gqUrQCpx4KT4Q9Zig5lcDyVVTH023MZ/cJcFseu77PU= ./gradlew build
 
-Windows
+```
 
-set JWT_SECRET=sua_jwt_secret gradlew build
+Windows (PowerShell)
+
+**IMPORTANTE**: Execute os camandos individualmente para evitar erros. Tenha certeza que o Java 21 esteja instalado.
+Se necessário, utilizei todos os comandos listados na tabela abaixo. Geralmente, somente os comandos
+listados no bloco de código já devem construir a aplicação corretamente.
+
+O caminho do Java 21 pode ser diferente dependendo de como a instalação foi realizada. Se necessário faça os ajustes
+necessários para que o caminho esteja apontando para a versão correta do Java 21.
+
+| Comando                     | Ação                                  |
+|-----------------------------|---------------------------------------|
+| .\gradlew clean             | Limpa builds anteriores               |
+| .\gradlew --stop            | encerra Daemon                        |
+| $env:JAVA_HOME="..."        | Configura JDK 21 temporariamente      |
+| $env:JWT_SECRET="..."       | Define chave JWT para autenticação    |
+| .\gradlew build --no-daemon | Build sem Daemon (processo limpo)     |
+
+```powershell
+$env:JAVA_HOME="C:\\Program Files\\Java\\jdk-21"
+$env:JWT_SECRET="gqUrQCpx4KT4Q9Zig5lcDyVVTH023MZ/cJcFseu77PU="
+.\gradlew build
 ```
 Após o build finalizar, o arquivo resultante `api-myblog.jar` estará disponível no diretório `api/build/libs/`.
 
 1. Para rodar a API, abra o terminal apontando para o diretório supracitado que contém o arquivo `.jar` e execute o comando:
 
-```
 Linux
+```bash
 
-JWT_SECRET=sua_jwt_secret java -jar api-myblog.jar
+JWT_SECRET=gqUrQCpx4KT4Q9Zig5lcDyVVTH023MZ/cJcFseu77PU= java -jar api-myblog.jar
 
-Windows
+```
 
-set JWT_SECRET=sua_jwt_secret && java -jar myblog-api.jar
+Windows (PowerShell)
+```powershell
+
+java -jar myblog-api.jar
 ```
 
 ### PRINCIPAIS ENDPOINTS
@@ -125,9 +162,9 @@ http://localhost:8080/h2-console
 
 ### TODO
 
-- Criar cadastro de usuário
-- Somente usuário logado pode criar postagem
-- Editar e excluir comentário
-- Usuário que criou a postagem pode excluí-la
-- Atualizar o Angular, Angular Material e outras dependências
-- Adicionar testes unitários
+- [X] Ajustar build windows
+- [ ] Criar cadastro de usuário
+- [ ] Somente usuário logado pode criar postagem
+- [ ] Editar e excluir comentário
+- [ ] Usuário que criou a postagem pode excluí-la
+- [ ] Atualizar o Angular, Angular Material e outras dependências
