@@ -102,6 +102,19 @@ Windows (PowerShell)
 java -jar myblog-api.jar
 ```
 
+### USUÁRIO DEFAULT
+
+Ao executar a aplicação com o flyway ativo, existem os usuários default, sendo eles:
+
+Administrador
+
+- Usuário: adm@email.com
+- Senha  : pwd123
+
+Outros usuários
+
+- utilizar o `e-mail que está no script`  a senha `senha123`
+
 ### PRINCIPAIS ENDPOINTS
 
 **Todas as postagens**
@@ -164,6 +177,7 @@ http://localhost:8080/h2-console
 
 - [X] Ajustar build windows
 - [ ] Criar cadastro de usuário
+- [ ] Vincular perfil de usuário
 - [ ] Somente usuário logado pode criar postagem
 - [ ] Editar e excluir comentário
 - [ ] Usuário que criou a postagem pode excluí-la
