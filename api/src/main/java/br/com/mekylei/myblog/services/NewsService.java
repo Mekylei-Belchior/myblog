@@ -2,6 +2,7 @@ package br.com.mekylei.myblog.services;
 
 import br.com.mekylei.myblog.dtos.news.FullNewsDTO;
 import br.com.mekylei.myblog.dtos.news.NewsDTO;
+import br.com.mekylei.myblog.dtos.news.NewsListDTO;
 import br.com.mekylei.myblog.enums.NotFoundBy;
 import br.com.mekylei.myblog.exceptions.NewsNotFoundByException;
 import br.com.mekylei.myblog.exceptions.NewsNotFoundException;
@@ -10,21 +11,16 @@ import br.com.mekylei.myblog.repositories.NewsRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 @Service
 public class NewsService {
 
     private final NewsRepository newsRepository;
-    private final PagedResourcesAssembler<News> pagedResourcesAssembler;
 
 
-    public NewsService(NewsRepository newsRepository, PagedResourcesAssembler<News> pagedResourcesAssembler) {
+    public NewsService(NewsRepository newsRepository) {
         this.newsRepository = newsRepository;
-        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @Transactional
@@ -50,9 +46,9 @@ public class NewsService {
         return news;
     }
 
-    public PagedModel<EntityModel<News>> getNews(Pageable pageable, String title) {
+    public Page<NewsListDTO> getNews(Pageable pageable, String title) {
         Page<News> newsPage = (title != null) ? getNewsByTitle(pageable, title) : getNews(pageable);
-        return pagedResourcesAssembler.toModel(newsPage);
+        return newsPage.map(NewsListDTO::from);
     }
 
     private Page<News> getNews(Pageable pageable) {
@@ -64,10 +60,10 @@ public class NewsService {
                 .orElseThrow(() -> new NewsNotFoundByException(NotFoundBy.TITLE, title));
     }
 
-    public PagedModel<EntityModel<News>> getNewsByTag(Pageable pageable, String tag) {
+    public Page<NewsListDTO> getNewsByTag(Pageable pageable, String tag) {
         Page<News> newsPage = newsRepository.findByTags(pageable, tag)
                 .orElseThrow(() -> new NewsNotFoundByException(NotFoundBy.TAG, tag));
-        return pagedResourcesAssembler.toModel(newsPage);
+        return newsPage.map(NewsListDTO::from);
     }
 
     public FullNewsDTO getCompleteNews(long idNews) {
