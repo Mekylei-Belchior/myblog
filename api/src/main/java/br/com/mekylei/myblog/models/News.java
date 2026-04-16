@@ -1,6 +1,5 @@
 package br.com.mekylei.myblog.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -22,7 +21,6 @@ public class News {
     @Lob
     private String content;
 
-    @JsonBackReference
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "news", fetch = FetchType.EAGER)
     private List<Comment> comment = new ArrayList<>();
 

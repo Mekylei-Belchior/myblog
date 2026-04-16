@@ -1,6 +1,5 @@
 package br.com.mekylei.myblog.models;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -20,7 +19,6 @@ public class Comment {
     private LocalDateTime date = LocalDateTime.now();
     private String author;
 
-    @JsonManagedReference
     @ManyToOne
     private News news;
 
