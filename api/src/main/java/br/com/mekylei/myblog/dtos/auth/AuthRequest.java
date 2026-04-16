@@ -1,4 +1,6 @@
 package br.com.mekylei.myblog.dtos.auth;
 
-public record AuthRequest(String email, String password) {
+import jakarta.validation.constraints.NotBlank;
+
+public record AuthRequest(@NotBlank String email, @NotBlank String password) {
 }

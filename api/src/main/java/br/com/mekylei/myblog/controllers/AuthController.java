@@ -5,6 +5,7 @@ import br.com.mekylei.myblog.dtos.auth.AuthRequest;
 import br.com.mekylei.myblog.dtos.auth.AuthResponse;
 import br.com.mekylei.myblog.dtos.auth.RefreshRequest;
 import br.com.mekylei.myblog.dtos.auth.Token;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,19 +23,19 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody AuthRequest request) {
+    public AuthResponse login(@Valid @RequestBody AuthRequest request) {
         Token token = authService.login(request.email(), request.password());
         return new AuthResponse(token.accessToken(), token.refreshToken());
     }
 
     @PostMapping("/refresh")
-    public AuthResponse refresh(@RequestBody RefreshRequest request) {
+    public AuthResponse refresh(@Valid @RequestBody RefreshRequest request) {
         Token token = authService.refreshToken(request.refreshToken());
         return new AuthResponse(token.accessToken(), token.refreshToken());
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody RefreshRequest request) {
+    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshRequest request) {
         authService.deleteToken(request.refreshToken());
         return ResponseEntity.noContent().build();
     }
