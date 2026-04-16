@@ -1,0 +1,16 @@
+# Development profile — H2 console, debug logging, permissive CORS
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+    settings:
+      web-allow-others: false   # console accessible from localhost only
+
+cors:
+  allowed-origins: "*"
+
+logging:
+  level:
+    org.springframework.boot: DEBUG
+    br.com.mekylei.myblog: DEBUG

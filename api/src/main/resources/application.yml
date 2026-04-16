@@ -1,13 +1,10 @@
-# Spring and Datasource
+# Shared defaults — overridden per profile (dev / prod)
 spring:
   mvc:
     throw-exception-if-no-handler-found: true
   web:
     resources:
       add-mappings: false
-  logging:
-    level:
-      org.springframework.boot: DEBUG
   datasource:
     driverClassName: org.h2.Driver
     url: jdbc:h2:mem:blog
@@ -23,10 +20,9 @@ spring:
         format_sql: false
   h2:
     console:
-      enabled: true
-      path: /h2-console
+      enabled: false   # disabled by default; enabled only in dev profile
     settings:
-      web-allow-others: true
+      web-allow-others: false
   flyway:
     enabled: true
     baseline-on-migrate: true
@@ -38,3 +34,7 @@ spring:
 # JWT Configuration
 jwt:
   secret: ${JWT_SECRET}
+
+# CORS — overridden per profile
+cors:
+  allowed-origins: "*"

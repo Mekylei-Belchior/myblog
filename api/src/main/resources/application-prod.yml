@@ -1,0 +1,25 @@
+# Production profile — H2 console disabled, restricted CORS, INFO logging
+#
+# --- PostgreSQL datasource placeholder (replaces H2 in Step 12) ---
+# spring:
+#   datasource:
+#     driverClassName: org.postgresql.Driver
+#     url: ${DB_URL}
+#     username: ${DB_USERNAME}
+#     password: ${DB_PASSWORD}
+#   flyway:
+#     locations: classpath:db/specific/postgresql
+
+spring:
+  h2:
+    console:
+      enabled: false
+    settings:
+      web-allow-others: false
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost}
+
+logging:
+  level:
+    root: INFO
