@@ -1,8 +1,8 @@
 package br.com.mekylei.myblog.services;
 
-import br.com.mekylei.myblog.dtos.news.FullNewsDTO;
-import br.com.mekylei.myblog.dtos.news.NewsDTO;
 import br.com.mekylei.myblog.dtos.news.NewsListDTO;
+import br.com.mekylei.myblog.dtos.news.NewsRequestDTO;
+import br.com.mekylei.myblog.dtos.news.NewsResponseDTO;
 import br.com.mekylei.myblog.enums.NotFoundBy;
 import br.com.mekylei.myblog.exceptions.NewsNotFoundByException;
 import br.com.mekylei.myblog.exceptions.NewsNotFoundException;
@@ -24,26 +24,27 @@ public class NewsService {
     }
 
     @Transactional
-    public News createNews(NewsDTO data) {
-        return newsRepository.save(data.toNews());
+    public NewsResponseDTO createNews(NewsRequestDTO data) {
+        News news = new News(data.title(), data.author(), data.content(), data.tags());
+        return NewsResponseDTO.from(newsRepository.save(news));
     }
 
     @Transactional
-    public News updateNews(long idNews, NewsDTO updateData) {
+    public NewsResponseDTO updateNews(long idNews, NewsRequestDTO updateData) {
         News news = newsRepository.findById(idNews).orElseThrow(() -> new NewsNotFoundException(idNews));
 
         news.setTitle(updateData.title());
         news.setContent(updateData.content());
         news.setTags(updateData.tags());
 
-        return newsRepository.save(news);
+        return NewsResponseDTO.from(newsRepository.save(news));
     }
 
     @Transactional
-    public News deleteNews(long idNews) {
+    public NewsResponseDTO deleteNews(long idNews) {
         News news = newsRepository.findById(idNews).orElseThrow(() -> new NewsNotFoundException(idNews));
         newsRepository.deleteById(idNews);
-        return news;
+        return NewsResponseDTO.from(news);
     }
 
     public Page<NewsListDTO> getNews(Pageable pageable, String title) {
@@ -66,8 +67,8 @@ public class NewsService {
         return newsPage.map(NewsListDTO::from);
     }
 
-    public FullNewsDTO getCompleteNews(long idNews) {
-        return new FullNewsDTO(newsRepository.findById(idNews).orElseThrow(() -> new NewsNotFoundException(idNews)));
+    public NewsResponseDTO getCompleteNews(long idNews) {
+        return NewsResponseDTO.from(newsRepository.findById(idNews).orElseThrow(() -> new NewsNotFoundException(idNews)));
     }
 
 }

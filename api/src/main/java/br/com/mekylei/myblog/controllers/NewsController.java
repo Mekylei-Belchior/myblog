@@ -1,18 +1,14 @@
 package br.com.mekylei.myblog.controllers;
 
-import br.com.mekylei.myblog.dtos.news.FullNewsDTO;
-import br.com.mekylei.myblog.dtos.news.NewsDTO;
 import br.com.mekylei.myblog.dtos.news.NewsListDTO;
-import br.com.mekylei.myblog.models.News;
+import br.com.mekylei.myblog.dtos.news.NewsRequestDTO;
+import br.com.mekylei.myblog.dtos.news.NewsResponseDTO;
 import br.com.mekylei.myblog.services.NewsService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,12 +18,10 @@ import org.springframework.web.bind.annotation.*;
 public class NewsController {
 
     private final NewsService newsService;
-    private final PagedResourcesAssembler<NewsListDTO> pagedResourcesAssembler;
 
 
-    public NewsController(NewsService newsService, PagedResourcesAssembler<NewsListDTO> pagedResourcesAssembler) {
+    public NewsController(NewsService newsService) {
         this.newsService = newsService;
-        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
 
@@ -38,7 +32,7 @@ public class NewsController {
      * @return the news created and http status (201)
      */
     @PostMapping
-    public ResponseEntity<News> create(@RequestBody @Valid NewsDTO news) {
+    public ResponseEntity<NewsResponseDTO> create(@RequestBody @Valid NewsRequestDTO news) {
         return new ResponseEntity<>(newsService.createNews(news), HttpStatus.CREATED);
     }
 
@@ -50,7 +44,7 @@ public class NewsController {
      * @return the news updated
      */
     @PutMapping("/{id}")
-    public ResponseEntity<News> update(@PathVariable Long id, @RequestBody @Valid NewsDTO news) {
+    public ResponseEntity<NewsResponseDTO> update(@PathVariable Long id, @RequestBody @Valid NewsRequestDTO news) {
         return ResponseEntity.ok(newsService.updateNews(id, news));
     }
 
@@ -61,7 +55,7 @@ public class NewsController {
      * @return if ok status 200. Otherwise, status 404
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<News> delete(@PathVariable Long id) {
+    public ResponseEntity<NewsResponseDTO> delete(@PathVariable Long id) {
         return ResponseEntity.ok(newsService.deleteNews(id));
     }
 
@@ -73,14 +67,13 @@ public class NewsController {
      * @return all news paged
      */
     @RequestMapping(value = "/topic", method = RequestMethod.GET)
-    public PagedModel<EntityModel<NewsListDTO>> getNewsByTag(@RequestParam(value = "tag", required = false) String tag,
+    public ResponseEntity<Page<NewsListDTO>> getNewsByTag(@RequestParam(value = "tag", required = false) String tag,
                                                       @PageableDefault(
                                                               page = 0,
                                                               size = 5,
                                                               sort = "id",
                                                               direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<NewsListDTO> page = newsService.getNewsByTag(pageable, tag);
-        return pagedResourcesAssembler.toModel(page);
+        return ResponseEntity.ok(newsService.getNewsByTag(pageable, tag));
     }
 
     /**
@@ -90,7 +83,7 @@ public class NewsController {
      * @return An object with all information about the news or status 404
      */
     @GetMapping("/{id}")
-    public ResponseEntity<FullNewsDTO> getCompleteNews(@PathVariable Long id) {
+    public ResponseEntity<NewsResponseDTO> getCompleteNews(@PathVariable Long id) {
         return ResponseEntity.ok(newsService.getCompleteNews(id));
     }
 
@@ -102,14 +95,13 @@ public class NewsController {
      * @return all news paged or a specific news
      */
     @GetMapping()
-    public PagedModel<EntityModel<NewsListDTO>> getNews(@RequestParam(required = false) String title,
+    public ResponseEntity<Page<NewsListDTO>> getNews(@RequestParam(required = false) String title,
                                                  @PageableDefault(
                                                          page = 0,
                                                          size = 10,
                                                          sort = "id",
                                                          direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<NewsListDTO> page = newsService.getNews(pageable, title);
-        return pagedResourcesAssembler.toModel(page);
+        return ResponseEntity.ok(newsService.getNews(pageable, title));
     }
 
 }

@@ -1,7 +1,7 @@
 package br.com.mekylei.myblog.services;
 
-import br.com.mekylei.myblog.dtos.comment.CommentDTO;
-import br.com.mekylei.myblog.dtos.comment.FullCommentDTO;
+import br.com.mekylei.myblog.dtos.comment.CommentRequestDTO;
+import br.com.mekylei.myblog.dtos.comment.CommentResponseDTO;
 import br.com.mekylei.myblog.exceptions.NewsNotFoundException;
 import br.com.mekylei.myblog.models.Comment;
 import br.com.mekylei.myblog.repositories.CommentRepository;
@@ -23,13 +23,13 @@ public class CommentService {
 
 
     @Transactional
-    public FullCommentDTO createComment(Long idNews, CommentDTO data) {
+    public CommentResponseDTO createComment(Long idNews, CommentRequestDTO data) {
         Comment comment = new Comment();
         comment.setNews(newsRepository.findById(idNews).orElseThrow(() -> new NewsNotFoundException(idNews)));
         comment.setAuthor(data.author());
         comment.setComment(data.comment());
 
-        return new FullCommentDTO(commentRepository.save(comment));
+        return CommentResponseDTO.from(commentRepository.save(comment));
     }
 
 }

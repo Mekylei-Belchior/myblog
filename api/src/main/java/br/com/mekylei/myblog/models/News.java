@@ -1,6 +1,5 @@
 package br.com.mekylei.myblog.models;
 
-import br.com.mekylei.myblog.dtos.comment.FullCommentDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
@@ -109,9 +108,5 @@ public class News {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    public List<FullCommentDTO> toFullComment() {
-        return comment.stream().map(FullCommentDTO::new).toList();
     }
 }

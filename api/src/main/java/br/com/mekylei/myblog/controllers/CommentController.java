@@ -1,7 +1,7 @@
 package br.com.mekylei.myblog.controllers;
 
-import br.com.mekylei.myblog.dtos.comment.CommentDTO;
-import br.com.mekylei.myblog.dtos.comment.FullCommentDTO;
+import br.com.mekylei.myblog.dtos.comment.CommentRequestDTO;
+import br.com.mekylei.myblog.dtos.comment.CommentResponseDTO;
 import br.com.mekylei.myblog.services.CommentService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,7 @@ public class CommentController {
      * @return the hole comment information
      */
     @PostMapping()
-    public ResponseEntity<FullCommentDTO> create(@PathVariable Long id, @RequestBody @Valid CommentDTO comment) {
+    public ResponseEntity<CommentResponseDTO> create(@PathVariable Long id, @RequestBody @Valid CommentRequestDTO comment) {
         return new ResponseEntity<>(commentService.createComment(id, comment), HttpStatus.CREATED);
     }
 
