@@ -28,8 +28,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/logout").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/news").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/news").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/news").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/news/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/news/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
