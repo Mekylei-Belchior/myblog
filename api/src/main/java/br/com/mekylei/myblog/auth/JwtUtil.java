@@ -1,7 +1,13 @@
 package br.com.mekylei.myblog.auth;
 
 import br.com.mekylei.myblog.utils.DateUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +19,8 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
     @Value("${JWT_SECRET}")
     private String secretKey;
@@ -60,7 +68,20 @@ public class JwtUtil {
                     .parseSignedClaims(token)
                     .getPayload()
                     .getSubject();
-        } catch (Exception e) {
+        } catch (ExpiredJwtException e) {
+            logger.warn("JWT token is expired: {}", e.getMessage());
+            return null;
+        } catch (SignatureException e) {
+            logger.error("Invalid JWT signature: {}", e.getMessage());
+            return null;
+        } catch (MalformedJwtException e) {
+            logger.error("Malformed JWT token: {}", e.getMessage());
+            return null;
+        } catch (UnsupportedJwtException e) {
+            logger.error("Unsupported JWT token: {}", e.getMessage());
+            return null;
+        } catch (IllegalArgumentException e) {
+            logger.error("JWT claims string is empty: {}", e.getMessage());
             return null;
         }
     }
@@ -76,7 +97,20 @@ public class JwtUtil {
 
             Instant expiration = expirationDate.toInstant();
             return expiration.isBefore(Instant.now());
-        } catch (Exception e) {
+        } catch (ExpiredJwtException e) {
+            logger.warn("JWT token is expired: {}", e.getMessage());
+            return true;
+        } catch (SignatureException e) {
+            logger.error("Invalid JWT signature: {}", e.getMessage());
+            return true;
+        } catch (MalformedJwtException e) {
+            logger.error("Malformed JWT token: {}", e.getMessage());
+            return true;
+        } catch (UnsupportedJwtException e) {
+            logger.error("Unsupported JWT token: {}", e.getMessage());
+            return true;
+        } catch (IllegalArgumentException e) {
+            logger.error("JWT claims string is empty: {}", e.getMessage());
             return true;
         }
     }
