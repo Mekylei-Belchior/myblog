@@ -17,7 +17,7 @@ in this repository. Humans and AI agents read from and write to this directory.
 ## Workflow
 
 | Who | Reads from | Writes to |
-|-----|-----------|-----------|
+|-----|------------|-----------|
 | GitHub Copilot (chat) | `.github/docs/` (proxy) | — |
 | GitHub Copilot (agent) | `.ia/context/` | `.ia/context/` |
 | Human developer | `.ia/context/` | `.ia/context/` |

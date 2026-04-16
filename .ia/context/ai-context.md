@@ -3,233 +3,159 @@
 
 # AI Context — MyBlog
 
-> This file is intended to be read by AI agents (GitHub Copilot, Claude, GPT, etc.) to establish
-> full context about this project before suggesting code, refactors, or architectural decisions.
+> Domain model, business rules, API surface, and tech stack.
+> For system structure and deployment: see `architecture.md`.
+> For coding rules: see `.github/copilot-instructions.md`.
 
 ---
 
 ## System Purpose
 
-**MyBlog** is a fullstack news/blog publishing platform. It allows registered users to publish,
-edit, and delete news posts. Anonymous visitors can browse all posts, search by title or tag,
-and post comments. Authentication is handled via JWT.
+**MyBlog** is a fullstack news/blog publishing platform. Registered users publish, edit, and
+delete news articles. Anonymous visitors browse, search by title or tag, and post comments.
+Authentication is handled via JWT.
 
-This project was originally built as a fullstack technical evaluation exercise and is now being
-evolved into a production-ready system deployed on a homelab running k3s (Kubernetes via k3s),
-Docker, a private Docker registry, and Jenkins CI/CD.
+Originally a technical evaluation exercise, now evolving into a production-ready system
+deployed on a homelab (k3s, Docker, Jenkins CI/CD).
 
 ---
 
 ## Technology Stack
 
-| Layer       | Technology                                    |
-|-------------|-----------------------------------------------|
-| Backend     | Java 21, Spring Boot 3.4.3                    |
-| Security    | Spring Security 6, JWT (jjwt 0.12.3)          |
-| Persistence | Spring Data JPA (Hibernate), Flyway, H2       |
-| Build       | Gradle (Groovy DSL)                           |
-| Frontend    | Angular 10.1.6, Angular Material 10.2.7       |
-| Server      | Nginx (serving Angular SPA)                   |
-| Runtime     | Docker, docker-compose                        |
-| Target Env  | k3s (Kubernetes), Private Docker Registry     |
-| CI/CD       | Jenkins                                       |
+| Layer       | Technology                                |
+|-------------|-------------------------------------------|
+| Backend     | Java 21, Spring Boot 3.4.3                |
+| Security    | Spring Security 6, JWT (jjwt 0.12.3)      |
+| Persistence | Spring Data JPA, Hibernate, Flyway, H2    |
+| Build       | Gradle (Groovy DSL)                       |
+| Frontend    | Angular 10.1.6, Angular Material 10.2.7   |
+| Server      | Nginx (serving Angular SPA)               |
+| Runtime     | Docker, docker-compose                    |
+| Target Env  | k3s (Kubernetes), Private Docker Registry |
+| CI/CD       | Jenkins                                   |
 
 ---
 
-## Domain & Business Concepts
+## Domain Model
 
-### Core Entities
+### News
 
-#### `News` (Post/Article)
-- Represents a published news article or blog post.
-- Fields: `id`, `title`, `author` (plain string, not FK), `date`, `content` (LOB), `tags` (List<String>), `comments` (List<Comment>)
-- Tags are stored in a separate join table `news_tags` and are free-form strings, not a structured entity.
-- Author is a free-text field — **not linked to a registered user** (this is a known gap).
-- Default ordering is by `id` descending (newest first).
-- Supports pagination and search by title or tag.
+The primary content entity. Represents a published article.
 
-#### `Comment`
-- Belongs to a `News` article (many-to-one).
-- Fields: `id`, `comment` (LOB), `date`, `author` (plain string), `news`
-- **Not linked to a registered user** — author is anonymous text.
-- Editing and deleting comments is not yet implemented (tracked in TODO).
-- Comments are eagerly loaded with their parent `News` entity.
+| Field      | Type            | Notes                                       |
+|------------|-----------------|---------------------------------------------|
+| `id`       | Long            | PK, auto-generated                          |
+| `title`    | String          |                                             |
+| `author`   | String          | Free-text — **not linked to ApiUser** (gap) |
+| `date`     | LocalDateTime   |                                             |
+| `content`  | String (LOB)    |                                             |
+| `tags`     | List\<String\>  | Join table `news_tags`, free-form           |
+| `comments` | List\<Comment\> | One-to-many, eagerly loaded                 |
 
-#### `ApiUser`
-- Represents an authenticated system user.
-- Fields: `id`, `email` (unique), `password` (BCrypt-hashed), `roles` (many-to-many), `created`, `active`
-- Implements Spring Security's `UserDetails` and `CredentialsContainer`.
-- Username is the `email` field.
-- No self-registration endpoint exists yet (tracked in TODO).
-- Seed users are inserted by Flyway migration (`V1__initial_data.sql`).
+- Default ordering: `id DESC` (newest first)
+- Supports pagination and search by title or tag
 
-#### `Role`
-- Roles: `ROLE_ADMIN`, `ROLE_USER`
-- Many-to-many with `ApiUser` via `user_roles` pivot table.
+### Comment
 
-#### `RefreshToken`
-- Persisted entity for JWT refresh token lifecycle management.
-- Stored in the H2 database; invalidated on logout.
-- Expires after 7 days.
+Belongs to a News article (many-to-one).
 
-#### Tag (not a formal entity)
-- Tags are `List<String>` stored in the `news_tags` collection table.
-- No tag management (create/list/delete) endpoints exist.
-- Filtering is done via `findByTags(pageable, tag)` in `NewsRepository`.
+| Field     | Type          | Notes                                 |
+|-----------|---------------|---------------------------------------|
+| `id`      | Long          | PK                                    |
+| `comment` | String (LOB)  |                                       |
+| `date`    | LocalDateTime |                                       |
+| `author`  | String        | Free-text — **not linked to ApiUser** |
+| `news`    | News          | FK to parent News                     |
 
----
+- No edit/delete endpoints yet
 
-## Authentication & Security
+### ApiUser
 
-### JWT Flow
-1. Client sends `POST /auth/login` with `{ email, password }`.
-2. Server validates credentials via `CustomUserDetailsService` → returns `{ accessToken, refreshToken }`.
-3. Access token lifetime: **15 minutes**.
-4. Refresh token lifetime: **7 days** (persisted in `refresh_tokens` table).
-5. Client stores both tokens in `sessionStorage` (NOT localStorage — reduced XSS window).
-6. Client auto-schedules token refresh 5 minutes before expiry.
-7. `POST /auth/refresh` accepts `{ refreshToken }` → returns new token pair.
-8. `POST /auth/logout` deletes the refresh token from the DB.
+Authenticated system user. Implements Spring Security `UserDetails`.
 
-### Spring Security Configuration (ACTUAL — `SecurityConfig.java`)
+| Field      | Type            | Notes                         |
+|------------|-----------------|-------------------------------|
+| `id`       | Long            | PK                            |
+| `email`    | String (unique) | Used as username              |
+| `password` | String          | BCrypt-hashed                 |
+| `roles`    | Set\<Role\>     | Many-to-many via `user_roles` |
+| `created`  | LocalDateTime   |                               |
+| `active`   | boolean         | Soft-disable without deletion |
 
-> ⚠️ The rules below reflect the **actual code state**, including known bugs.
+- Seed users inserted via Flyway migration (`V1__initial_data.sql`)
+- No self-registration endpoint yet
 
-```
-POST  /auth/login    → permitAll
-POST  /auth/refresh  → permitAll
-POST  /auth/logout   → authenticated
-PUT   /news          → authenticated  ← BUG: does NOT match /news/{id} (missing /**)
-DELETE /news          → authenticated  ← BUG: does NOT match /news/{id} (missing /**)
-anyRequest()         → permitAll       ← PUT/DELETE /news/{id} fall here — UNPROTECTED
-```
+### Role
 
-> **Critical**: `PUT /news/{id}` and `DELETE /news/{id}` are **currently unprotected**.
-> The matchers target `/news` (exact path) instead of `/news/**`.
-> This means any unauthenticated user can edit or delete any post.
+- Values: `ROLE_ADMIN`, `ROLE_USER`
+- Many-to-many with ApiUser
 
-### Known Security Issues
+### RefreshToken
 
-| # | Issue | Severity | Location |
-|---|-------|----------|----------|
-| 1 | **`PUT`/`DELETE` matchers use `/news` not `/news/**`** — `PUT /news/1` and `DELETE /news/1` are unprotected | **CRITICAL** | SecurityConfig.java |
-| 2 | **`POST /news` not protected** — anyone can create posts | **CRITICAL** | SecurityConfig.java |
-| 3 | **JWT_SECRET hardcoded in Dockerfile `ENV`** — visible in image history | **CRITICAL** | api/Dockerfile |
-| 4 | **H2 console with `web-allow-others: true`** — DB browsable from any network client | **HIGH** | application.yml |
-| 5 | **CORS: `allowedOriginPatterns("*")` + `allowCredentials(true)`** — any origin can make credentialed requests | **HIGH** | WebConfig.java |
-| 6 | **`JwtUtil.validateToken()` catches bare `Exception`** — token errors silently swallowed, no logging | **MEDIUM** | JwtUtil.java |
-| 7 | **Missing `@Valid` on `AuthController` endpoints** — login/refresh accept unvalidated input | **LOW** | AuthController.java |
-| 8 | **No rate limiting on `/auth/login`** — open to brute-force attacks | **MEDIUM** | — |
-| 9 | **No HTTPS** — credentials transmitted in plaintext | **HIGH** | — |
-| 10 | **CSRF disabled** — intentional for stateless JWT, but not documented in SecurityConfig | **INFO** | SecurityConfig.java |
+- Persisted in DB for JWT refresh lifecycle
+- Invalidated on logout; expires after 7 days
+
+### Tag
+
+- Not a formal entity — `List<String>` in `news_tags` collection table
+- No CRUD endpoints; filtering via `NewsRepository.findByTags()`
 
 ---
 
-## Frontend ↔ Backend Communication
+## Authentication Flow (JWT)
 
-- The Angular app communicates with the backend through a typed service layer (`NewsService`, `AuthService`).
-- Base API URL is defined in `environment.ts` / `environment.prod.ts` and injected via Angular build args.
-- In Docker, `API_BASE_URL` is passed as a build argument to the client container: `http://127.0.0.1:8080`.
-  This is a **known problem**: `127.0.0.1` in the browser context references the client machine, not the server —
-  this works in docker-compose because both containers are on the same host, but it will break in Kubernetes.
-- All API calls rely on standard `HttpClient` with JSON headers.
-- JWT token is attached to requests via `JwtInterceptor` (in `auth/jwt.interceptor.ts`).
-- The frontend uses Angular interfaces (`NewsPageable`, `FullNews`, `Post`, `CommentResponse`) to type API responses.
-
----
-
-## API Endpoints Reference
-
-| Method | Path                    | Auth Required | Description                          |
-|--------|-------------------------|---------------|--------------------------------------|
-| POST   | /auth/login             | No            | Authenticate user, get JWT tokens    |
-| POST   | /auth/refresh           | No            | Refresh access token                 |
-| POST   | /auth/logout            | Yes           | Invalidate refresh token             |
-| GET    | /news                   | No            | List/search news (paginable)         |
-| GET    | /news/{id}              | No            | Get full news article with comments  |
-| GET    | /news/topic?tag={tag}   | No            | Filter news by tag                   |
-| POST   | /news                   | No (gap)      | Create a news article                |
-| PUT    | /news/{id}              | Intended: Yes / **Actual: No (BUG)** | Update a news article |
-| DELETE | /news/{id}              | Intended: Yes / **Actual: No (BUG)** | Delete a news article |
-| POST   | /news/{id}              | No            | Add a comment to a news article      |
-
-### Pagination Parameters
-- `page` (0-based), `size`, `sort` (default: `id,desc`)
+1. `POST /auth/login` with `{ email, password }`
+2. Server validates via `CustomUserDetailsService` → returns `{ accessToken, refreshToken }`
+3. Access token: **15 min** (HS256). Refresh token: **7 days** (persisted in DB)
+4. Client stores tokens in `sessionStorage` (not localStorage — reduced XSS window)
+5. Client auto-schedules refresh 5 min before expiry
+6. `POST /auth/refresh` with `{ refreshToken }` → new token pair
+7. `POST /auth/logout` → deletes refresh token from DB
+8. `JwtInterceptor` attaches `Authorization: Bearer <token>` to all requests
 
 ---
 
-## Docker Setup
+## API Endpoints
 
-### How it runs today
-- `api/Dockerfile`: **multi-stage** — `eclipse-temurin:21-jdk-jammy` for build, `eclipse-temurin:21-jre-jammy` for runtime.
-- `client/Dockerfile`: **multi-stage** — `node:14` for Angular build, `nginx:alpine` for serving.
-- `docker-compose.yml` runs two services:
-  - `api-myblog`: Spring Boot on port `8080`
-  - `client-myblog`: Nginx on port `8082` (serving the Angular SPA)
-- `SPRING_PROFILES_ACTIVE: prod` is set in docker-compose but there is no `application-prod.yml` — this has no effect.
-- `JWT_SECRET` is baked into the Dockerfile `ENV` — must be extracted to a secret or environment variable injection.
+| Method | Path                  | Auth        | Description                      |
+|--------|-----------------------|-------------|----------------------------------|
+| POST   | /auth/login           | No          | Authenticate, get JWT tokens     |
+| POST   | /auth/refresh         | No          | Refresh access token             |
+| POST   | /auth/logout          | Yes         | Invalidate refresh token         |
+| GET    | /news                 | No          | List/search news (paginated)     |
+| GET    | /news/{id}            | No          | Full news article with comments  |
+| GET    | /news/topic?tag={tag} | No          | Filter news by tag               |
+| POST   | /news                 | ⚠️ No (bug) | Create news article              |
+| PUT    | /news/{id}            | ⚠️ No (bug) | Update news article              |
+| DELETE | /news/{id}            | ⚠️ No (bug) | Delete news article              |
+| POST   | /news/{id}            | No          | Add comment to news article      |
 
----
+**Pagination**: `page` (0-based), `size`, `sort` (default: `id,desc`)
 
-## Inferred Business Rules
-
-1. Any visitor can read news posts and their comments (no auth required).
-2. Only authenticated users should be able to create new posts (not yet enforced in code).
-3. Only authenticated users can edit or delete posts.
-4. Anyone (including anonymous) can currently post comments.
-5. The author of a post should be able to delete it (tracked in TODO, not yet implemented).
-6. Posts are organized chronologically, newest first.
-7. Posts can be tagged with free-form strings; tags are not moderated.
-8. A user account can be deactivated (`active = false`) without deletion.
-9. Passwords are hashed with BCrypt (`new BCryptPasswordEncoder()` — default strength 10, not explicitly configured).
-10. Refresh tokens are server-side persisted. The refresh endpoint issues a **new access token** but returns the **same refresh token** — full token rotation is not currently implemented.
+> ⚠️ `POST/PUT/DELETE /news` should require auth but don't due to SecurityConfig bugs.
+> See `architecture.md` §5 for the full security issues list.
 
 ---
 
-## Technical Debt & Limitations
+## Business Rules
 
-| Area         | Issue                                                                            |
-|--------------|----------------------------------------------------------------------------------|
-| Database     | H2 is in-memory — all data is lost on restart. Not suitable for any persistence. |
-| Security     | JWT_SECRET hardcoded in Dockerfile.                                              |
-| Security     | H2 console enabled with remote access — must be disabled in production.          |
-| Security     | POST /news is not protected (anyone can create posts).                           |
-| Security     | SecurityConfig: `PUT`/`DELETE` matchers use `/news` not `/news/**` — path-variable endpoints are unprotected. |
-| Security     | CORS: `allowedOriginPatterns("*")` + `allowCredentials(true)` — any origin accepted with credentials. |
-| Security     | `JwtUtil.validateToken()` catches bare `Exception` — silent failure, no security logging. |
-| Data Model   | `News.author` is a plain string, not linked to `ApiUser`.                        |
-| Data Model   | `Comment.author` is a plain string, not linked to `ApiUser`.                     |
-| Data Model   | Tags are free-form strings, no validation or deduplication.                      |
-| API Design   | `NewsController` returns `News` entity directly (not a DTO) in some responses.  |
-| API Design   | No standardized response envelope (HATEOAS used only for paged results).         |
-| Frontend     | Angular 10 is 4+ major versions behind current (17+), with multiple CVEs.        |
-| Frontend     | Node 14 in Docker is EOL.                                                        |
-| Frontend     | `API_BASE_URL=http://127.0.0.1:8080` breaks in Kubernetes / remote environments. |
-| Features     | No user registration endpoint.                                                   |
-| Features     | No comment editing or deletion.                                                  |
-| Features     | No user profile / avatar.                                                        |
-| Testing      | No unit or integration tests currently written.                                  |
-| Infra        | No Kubernetes manifests, no Helm chart, no CI/CD pipeline.                       |
+1. Any visitor can read news and comments (no auth required)
+2. Only authenticated users should create/edit/delete news (partially enforced — see architecture.md §5)
+3. Anyone can post comments (including anonymous)
+4. News author should be able to delete own posts (not yet implemented)
+5. Posts ordered chronologically, newest first
+6. Tags are free-form strings, unmoderated
+7. User accounts can be deactivated (`active=false`) without deletion
+8. Passwords hashed with BCrypt (default strength 10)
+9. Refresh tokens server-side persisted; full rotation not yet implemented
 
 ---
 
-## Project TODO (from README)
+## Frontend Communication
 
-- [ ] Create user registration
-- [ ] Link user profile to posts
-- [ ] Only logged-in user can create a post
-- [ ] Edit and delete comments
-- [ ] Post author can delete their own post
-- [ ] Update Angular and dependencies
-
----
-
-## Homelab Deployment Context
-
-- Server IP: `192.168.0.106`
-- Docker installed; private Docker registry available
-- Kubernetes via **k3s** (lightweight production-grade cluster)
-- Jenkins available for CI/CD automation
-- This project is expected to evolve toward Kubernetes-native deployment
-- All new code and configurations should be compatible with containerized environments
-- Environment-specific configuration must use environment variables (12-Factor App principles)
+- Angular services (`NewsService`, `AuthService`) make all HTTP calls — never directly from components
+- Base API URL from `environment.ts` / `environment.prod.ts`
+- `JwtInterceptor` attaches Authorization header automatically
+- Frontend interfaces: `NewsPageable`, `FullNews`, `Post`, `CommentResponse`
+- In Docker: `API_BASE_URL=http://127.0.0.1:8080` — works locally but breaks in Kubernetes
+  (see `architecture.md` §5.4 for details)
