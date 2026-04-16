@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: myblog-api-svc
+spec:
+  selector:
+    app: myblog-api
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myblog-client-svc
+spec:
+  selector:
+    app: myblog-client
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

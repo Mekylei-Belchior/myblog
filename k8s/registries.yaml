@@ -1,0 +1,7 @@
+# k3s insecure registry configuration
+# Deploy this to EACH k3s node at: /etc/rancher/k3s/registries.yaml
+# Then restart: sudo systemctl restart k3s
+mirrors:
+  "192.168.0.106:5000":
+    endpoint:
+      - "http://192.168.0.106:5000"

@@ -38,3 +38,13 @@ jwt:
 # CORS — overridden per profile
 cors:
   allowed-origins: "*"
+
+# Actuator — expose health endpoint only
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never

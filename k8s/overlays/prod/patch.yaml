@@ -1,0 +1,7 @@
+# Patch for prod: ensure prod profile and 2 replicas
+- op: replace
+  path: /spec/template/spec/containers/0/env/0/value
+  value: "prod"
+- op: replace
+  path: /spec/replicas
+  value: 2

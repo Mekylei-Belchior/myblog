@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: myblog
+
+resources:
+  - namespace.yaml
+  - ../../base
+  - hpa.yaml
+  - pdb.yaml
+
+configMapGenerator:
+  - name: myblog-config
+    envs:
+      - config.env
+
+patches:
+  - path: patch.yaml
+    target:
+      kind: Deployment
+      name: myblog-api
+  - path: ingress-patch.yaml
+
+images:
+  - name: 192.168.0.106:5000/myblog/api
+    newTag: latest
+  - name: 192.168.0.106:5000/myblog/client
+    newTag: latest
