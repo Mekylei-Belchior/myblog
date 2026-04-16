@@ -20,8 +20,5 @@ WORKDIR /app
 # Copia o JAR gerado na etapa anterior
 COPY --from=build /app/build/libs/*.jar app.jar
 
-# Define a variável de ambiente JWT_SECRET (opcional, pode ser sobrescrita no docker run)
-ENV JWT_SECRET="gqUrQCpx4KT4Q9Zig5lcDyVVTH023MZ/cJcFseu77PU="
-
 # Comando para rodar a aplicação
 ENTRYPOINT ["java", "-jar", "app.jar"]

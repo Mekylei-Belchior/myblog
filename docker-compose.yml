@@ -9,6 +9,7 @@ services:
     restart: unless-stopped  # Evita loops infinitos caso a API falhe
     environment:
       SPRING_PROFILES_ACTIVE: prod  # Define perfil do Spring Boot
+      JWT_SECRET: ${JWT_SECRET}
 
   app-client:
     container_name: client-myblog
