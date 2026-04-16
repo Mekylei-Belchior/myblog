@@ -6,7 +6,7 @@ COPY package.json package-lock.json ./
 
 # Instala as dependências e utiliza cache
 RUN --mount=type=cache,target=/root/.npm \
-    npm install
+    npm ci
 
 # Copia o restante do código-fonte
 COPY . .
