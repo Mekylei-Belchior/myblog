@@ -28,7 +28,6 @@ spring:
     baseline-on-migrate: true
     locations: classpath:db/specific/h2
     placeholder-replacement: false
-    depends-on: entityManagerFactory
     log-sql: true
 
 # JWT Configuration

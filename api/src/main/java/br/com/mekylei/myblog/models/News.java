@@ -18,7 +18,7 @@ public class News {
     private String author;
     private LocalDateTime date = LocalDateTime.now();
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "news", fetch = FetchType.EAGER)
