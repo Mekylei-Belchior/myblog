@@ -57,7 +57,7 @@ export class NewsListComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe((news) => {
       if (news) {
         // Update the page with brand new information after close the dialog window
-        this.listOfNews = news._embedded?.newsList || [];
+        this.listOfNews = news.content || [];
         this.length = news.page?.totalElements || 0;
         this.pageSize = news.page?.size || 0;
       }
@@ -70,7 +70,7 @@ export class NewsListComponent implements OnInit, OnDestroy {
   private getNews(): void {
     this.newsService.getAllNews().subscribe(
       (news) => {
-        this.listOfNews = news._embedded?.newsList || [];
+        this.listOfNews = news.content || [];
         this.length = news.page?.totalElements || 0;
         this.pageSize = news.page?.size || 0;
       },
@@ -89,7 +89,7 @@ export class NewsListComponent implements OnInit, OnDestroy {
   public pageEvent(event: PageEvent): void {
     this.newsService.getPagedNews(event.pageIndex, event.pageSize).subscribe(
       (news) => {
-        this.listOfNews = news._embedded?.newsList || [];
+        this.listOfNews = news.content || [];
         this.length = news.page?.totalElements || 0;
         this.pageSize = news.page?.size || 0;
       },

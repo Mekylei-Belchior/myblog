@@ -1,19 +1,8 @@
 import { ListOfNews } from './ResponseNews.interface';
 
 export interface NewsPageable {
-  _embedded: Embedded;
-  _links: Links;
+  content: ListOfNews;
   page: Page;
-}
-
-interface Embedded {
-  newsList: ListOfNews;
-}
-
-interface Links {
-  self: {
-    href: string;
-  };
 }
 
 interface Page {
