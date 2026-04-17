@@ -13,9 +13,6 @@
 
 <!-- BEGIN SYNCED CONTENT — do not remove this comment -->
 
-> ⚠️ SOURCE OF TRUTH — Edit here. Sync proxy after changes.
-> Proxy: `.github/docs/architecture.md`
-
 # Architecture — MyBlog
 
 > System structure, deployment topology, known problems, and roadmap.
@@ -224,8 +221,8 @@ k3s Cluster (192.168.0.106)
 ```
 api/src/main/resources/
 ├── application.yml          ← shared defaults
-├── application-dev.yml      ← local dev overrides (to create)
-└── application-prod.yml     ← production config (to create)
+├── application-dev.yml      ← local dev overrides (H2 console, debug logging, permissive CORS)
+└── application-prod.yml     ← production config (PostgreSQL, H2 disabled, restricted CORS, INFO logging)
 ```
 
 ---

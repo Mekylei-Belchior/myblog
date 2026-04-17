@@ -13,9 +13,6 @@
 
 <!-- BEGIN SYNCED CONTENT — do not remove this comment -->
 
-> ⚠️ SOURCE OF TRUTH — Edit here. Sync proxy after changes.
-> Proxy: `.github/docs/ai-context.md`
-
 # AI Context — MyBlog
 
 > Domain model, business rules, API surface, and tech stack.

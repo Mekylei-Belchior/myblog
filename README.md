@@ -1,184 +1,164 @@
-# Technical evaluation for Full Stack Developer
+# MyBlog
 
-MyBlog é uma simples aplicação fullstack desenvolvida utilizando Spring Boot e H2 Database no backend e Angular no frontend.
+Plataforma fullstack de publicação de artigos. Usuários autenticados criam, editam e excluem postagens. Visitantes navegam, buscam por título ou tag e postam comentários.
 
-## INFORMAÇÕES
+Originalmente um exercício de avaliação técnica, o projeto evoluiu para um sistema em produção implantado em homelab (k3s, Docker, Jenkins CI/CD).
 
-- Java 21
-- Spring Boot 3.4.3
-- Spring security e JWT
-- Flyway
-- H2 Database
-- Angular 10.1.6
-- Angular Material 10.2.7
+## STACK
 
-## COMO RODAR O PROJETO UTILIZANDO O DOCKER
+| Camada      | Tecnologia                                |
+|-------------|-------------------------------------------|
+| Backend     | Java 21, Spring Boot 3.4.3                |
+| Segurança   | Spring Security 6, JWT (jjwt 0.12.3)      |
+| Persistência| Spring Data JPA, Hibernate, Flyway, H2    |
+| Build       | Gradle (Groovy DSL)                       |
+| Frontend    | Angular 10.1.6, Angular Material 10.2.7   |
+| Servidor    | Nginx (SPA)                               |
+| Runtime     | Docker, docker-compose                    |
+| Deploy alvo | k3s (Kubernetes), Registry privado        |
+| CI/CD       | Jenkins                                   |
 
-Você pode rodar o projeto seguindo os passos abaixo:
+## ESTRUTURA DO PROJETO
 
-1. Com o docker rodando em sua máquina, abra um terminal no diretório raíz do projeto ao qual contém os arquivos do docker-compose e rode os comandos para construir e rodar a aplicação.
+```
+myblog/
+├── api/          ← Spring Boot (Java 21)
+├── client/       ← Angular 10 + Nginx
+├── k8s/          ← Manifests Kubernetes (kustomize)
+├── docker-compose.yml
+└── docker-compose-windows.yml
+```
 
-Linux
+## COMO RODAR COM DOCKER
+
+### Linux
+
 ```bash
-
+# Build
 docker-compose build
-docker-compose build --no-cache (build desconsiderando caches)
-```
 
-Windows (PowerShell)
-```powershell
-
-docker-compose -f docker-compose-windows.yml build
-docker-compose -f docker-compose-windows.yml build --no-cache
-```
-
-
-1. Rode os comandos abaixo e aguarde o processamento das informações. Após a conclusão acesse a aplicação no endereço: http://localhost:8082/
-
-Linux
-```bash
-
+# Subir
 docker-compose up
-
 ```
-Windows (PowerShell)
+
+### Windows (PowerShell)
+
 ```powershell
+# Build
+docker-compose -f docker-compose-windows.yml build
 
+# Subir
 docker-compose -f docker-compose-windows.yml up
-
 ```
 
-1. Para finalizar o container, rode o comando `docker-compose down` para o Linux e `docker-compose -f docker-compose-windows.yml down` para o Windows.
+Após iniciar, acesse: **http://localhost:8082/**
+
+Para encerrar: `docker-compose down` (Linux) ou `docker-compose -f docker-compose-windows.yml down` (Windows).
 
 ## BUILD SOMENTE DA API
 
-Caso queria testar somente a API, siga os passos abaixo:
+No diretório `api/`, execute:
 
-1. No diretório raíz da API `api/` abra o terminal apontando para o diretório citado e rode o comando:
+### Linux
 
-Linux
 ```bash
-
-JWT_SECRET=gqUrQCpx4KT4Q9Zig5lcDyVVTH023MZ/cJcFseu77PU= ./gradlew build
-
+# Defina uma chave secreta forte — nunca use a mesma em produção
+JWT_SECRET=<sua-chave-secreta> ./gradlew build
 ```
 
-Windows (PowerShell)
+### Windows (PowerShell)
 
-**IMPORTANTE**: Execute os camandos individualmente para evitar erros. Tenha certeza que o Java 21 esteja instalado.
-Se necessário, utilizei todos os comandos listados na tabela abaixo. Geralmente, somente os comandos
-listados no bloco de código já devem construir a aplicação corretamente.
-
-O caminho do Java 21 pode ser diferente dependendo de como a instalação foi realizada. Se necessário faça os ajustes
-necessários para que o caminho esteja apontando para a versão correta do Java 21.
+**IMPORTANTE**: Execute os comandos individualmente. Certifique-se de que o Java 21 está instalado.
 
 | Comando                     | Ação                                  |
 |-----------------------------|---------------------------------------|
-| .\gradlew clean             | Limpa builds anteriores               |
-| .\gradlew --stop            | encerra Daemon                        |
-| $env:JAVA_HOME="..."        | Configura JDK 21 temporariamente      |
-| $env:JWT_SECRET="..."       | Define chave JWT para autenticação    |
-| .\gradlew build --no-daemon | Build sem Daemon (processo limpo)     |
+| `.\gradlew clean`           | Limpa builds anteriores               |
+| `.\gradlew --stop`          | Encerra o Daemon                      |
+| `$env:JAVA_HOME="..."`      | Configura JDK 21 temporariamente      |
+| `$env:JWT_SECRET="..."`     | Define chave JWT para autenticação    |
+| `.\gradlew build --no-daemon` | Build sem Daemon (processo limpo)   |
 
 ```powershell
 $env:JAVA_HOME="C:\\Program Files\\Java\\jdk-21"
-$env:JWT_SECRET="gqUrQCpx4KT4Q9Zig5lcDyVVTH023MZ/cJcFseu77PU="
+$env:JWT_SECRET="<sua-chave-secreta>"
 .\gradlew build
 ```
-Após o build finalizar, o arquivo resultante `api-myblog.jar` estará disponível no diretório `api/build/libs/`.
 
-1. Para rodar a API, abra o terminal apontando para o diretório supracitado que contém o arquivo `.jar` e execute o comando:
+O arquivo `api-myblog.jar` será gerado em `api/build/libs/`.
 
-Linux
+### Rodando o JAR
+
 ```bash
-
-JWT_SECRET=gqUrQCpx4KT4Q9Zig5lcDyVVTH023MZ/cJcFseu77PU= java -jar api-myblog.jar
-
+# Linux
+JWT_SECRET=<sua-chave-secreta> java -jar api-myblog.jar
 ```
 
-Windows (PowerShell)
 ```powershell
-
-java -jar myblog-api.jar
+# Windows
+$env:JWT_SECRET="<sua-chave-secreta>"
+java -jar api-myblog.jar
 ```
 
-### USUÁRIO DEFAULT
+> ⚠️ **Segurança**: sempre use uma chave forte e única por ambiente. Nunca reutilize a mesma chave em desenvolvimento e produção.
 
-Ao executar a aplicação com o flyway ativo, existem os usuários default, sendo eles:
+## USUÁRIOS DEFAULT
 
-Administrador
+Inseridos via Flyway migration ao iniciar a aplicação:
 
-- Usuário: adm@email.com
-- Senha  : pwd123
+| Perfil        | Usuário          | Senha    |
+|---------------|------------------|----------|
+| Administrador | adm@email.com    | pwd123   |
+| Usuário       | (ver migration)  | senha123 |
 
-Outros usuários
+## PRINCIPAIS ENDPOINTS
 
-- utilizar o `e-mail que está no script`  a senha `senha123`
+| Método | Endpoint                      | Auth | Descrição                            |
+|--------|-------------------------------|------|--------------------------------------|
+| GET    | /news                         | Não  | Listagem paginada (busca por título) |
+| GET    | /news/{id}                    | Não  | Postagem completa com comentários    |
+| GET    | /news/topic?tag={tag}         | Não  | Filtra por tag                       |
+| POST   | /news                         | Sim* | Cria postagem                        |
+| PUT    | /news/{id}                    | Sim* | Edita postagem                       |
+| DELETE | /news/{id}                    | Sim* | Exclui postagem                      |
+| POST   | /news/{id}                    | Não  | Adiciona comentário                  |
+| POST   | /auth/login                   | Não  | Autenticação JWT                     |
+| POST   | /auth/refresh                 | Não  | Renova access token                  |
+| POST   | /auth/logout                  | Sim  | Invalida refresh token               |
 
-### PRINCIPAIS ENDPOINTS
+> *⚠️ Endpoints de escrita ainda não protegidos corretamente — bug conhecido no `SecurityConfig`.
 
-**Todas as postagens**
+### Paginação
+
 ```
-GET http://localhost:8080/news
-```
-
-**Postagem específica**
-```
-GET http://localhost:8080/news/id-da-postagem
-```
-
-**Busca por título da postagem**
-```
-GET http://localhost:8080/news?title=titulo-da-postagem
-```
-
-**Busca por tag**
-```
-GET http://localhost:8080/news/topic?tag=nome-da-tag
-```
-
-**cria uma nova postagem**
-```
-POST http://localhost:8080/news
+GET http://localhost:8080/news?page=0&size=10
+GET http://localhost:8080/news?title=titulo&page=0&size=10
 ```
 
-**Edita uma postagem**
-```
-PUT http://localhost:8080/news/id-da-postagem
-```
-
-**Deleta uma postagem**
-```
-DELETE http://localhost:8080/news/id-da-postagem
-```
-
-### PAGINAÇÃO E ORDENAÇÃO
-
-Obtém as postagens definindo a quantidade de itens por página e/ou especificando uma página. Por padrão, as postagens são ordenadas de forma decrescente.
-
-**Postagem paginada**
-```
-GET http://localhost:8080/news?page=paginasize=quantidade-de-itens-por-pagina
-```
-
-
-**Busca por título paginada**
-```
-GET http://localhost:8080/news?title=titulo&page=pagina&size=quantidade-de-itens-por-pagina
-```
-
-## ACESSAR O H2 DATABASE
+## H2 DATABASE (desenvolvimento)
 
 ```
 http://localhost:8080/h2-console
 ```
 
-### TODO
+> ⚠️ Disponível apenas em desenvolvimento. Dados são perdidos ao reiniciar o container.
 
-- [X] Ajustar build windows
-- [ ] Criar cadastro de usuário
-- [ ] Vincular perfil de usuário
-- [ ] Somente usuário logado pode criar postagem
-- [ ] Editar e excluir comentário
-- [ ] Usuário que criou a postagem pode excluí-la
-- [ ] Atualizar o Angular, Angular Material e outras dependências
+## DEPLOY KUBERNETES (k3s)
+
+Manifests em `k8s/`. Usa Kustomize com overlays para `dev` e `prod`.
+
+```bash
+# Deploy no namespace myblog
+kubectl apply -k k8s/overlays/dev
+```
+
+## TODO / ROADMAP
+
+- [x] Build Windows
+- [ ] Corrigir SecurityConfig — proteger `POST`/`PUT`/`DELETE /news`
+- [ ] Criar `application-prod.yml` (PostgreSQL, H2 desabilitado)
+- [ ] Cadastro de usuário (`POST /users`)
+- [ ] Vincular autor da postagem ao usuário autenticado
+- [ ] Permitir apenas ao autor excluir suas postagens
+- [ ] Editar e excluir comentários
+- [ ] Migrar de H2 para PostgreSQL
+- [ ] Atualizar Angular (10 → versão atual) e dependências
