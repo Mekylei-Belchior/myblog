@@ -154,11 +154,11 @@ kubectl apply -k k8s/overlays/dev
 ## TODO / ROADMAP
 
 - [x] Build Windows
-- [ ] Corrigir SecurityConfig — proteger `POST`/`PUT`/`DELETE /news`
-- [ ] Criar `application-prod.yml` (PostgreSQL, H2 desabilitado)
+- [x] Corrigir SecurityConfig — proteger `POST`/`PUT`/`DELETE /news`
+- [x] Criar `application-prod.yml` (PostgreSQL, H2 desabilitado)
 - [ ] Cadastro de usuário (`POST /users`)
 - [ ] Vincular autor da postagem ao usuário autenticado
 - [ ] Permitir apenas ao autor excluir suas postagens
 - [ ] Editar e excluir comentários
-- [ ] Migrar de H2 para PostgreSQL
+- [x] Migrar de H2 para PostgreSQL (em produção)
 - [ ] Atualizar Angular (10 → versão atual) e dependências
