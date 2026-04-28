@@ -61,7 +61,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void login_whenValidCredentials_shouldReturnToken() {
+    void loginWhenValidCredentialsShouldReturnToken() {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(null);
         when(userDetailsService.loadUserByUsername(EMAIL)).thenReturn(userDetails);
@@ -78,7 +78,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void login_whenInvalidCredentials_shouldThrowException() {
+    void loginWhenInvalidCredentialsShouldThrowException() {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new BadCredentialsException("Bad credentials"));
 
@@ -87,7 +87,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void refreshToken_whenValidToken_shouldReturnNewAccessToken() {
+    void refreshTokenWhenValidTokenShouldReturnNewAccessToken() {
         RefreshToken storedToken = new RefreshToken(REFRESH_TOKEN, EMAIL,
                 LocalDateTime.now().plusDays(7));
         when(jwtUtil.isTokenExpired(REFRESH_TOKEN)).thenReturn(false);
@@ -102,7 +102,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void refreshToken_whenExpiredToken_shouldThrowTokenException() {
+    void refreshTokenWhenExpiredTokenShouldThrowTokenException() {
         when(jwtUtil.isTokenExpired(REFRESH_TOKEN)).thenReturn(true);
 
         assertThatThrownBy(() -> authService.refreshToken(REFRESH_TOKEN))
@@ -111,7 +111,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void refreshToken_whenTokenNotInRepository_shouldThrowTokenException() {
+    void refreshTokenWhenTokenNotInRepositoryShouldThrowTokenException() {
         when(jwtUtil.isTokenExpired(REFRESH_TOKEN)).thenReturn(false);
         when(refreshTokenRepository.findByToken(REFRESH_TOKEN)).thenReturn(Optional.empty());
 
@@ -121,7 +121,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void refreshToken_whenEmailMismatch_shouldThrowTokenException() {
+    void refreshTokenWhenEmailMismatchShouldThrowTokenException() {
         RefreshToken storedToken = new RefreshToken(REFRESH_TOKEN, "other@example.com",
                 LocalDateTime.now().plusDays(7));
         when(jwtUtil.isTokenExpired(REFRESH_TOKEN)).thenReturn(false);
@@ -134,7 +134,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void refreshToken_whenValidateTokenReturnsNull_shouldThrowTokenException() {
+    void refreshTokenWhenValidateTokenReturnsNullShouldThrowTokenException() {
         RefreshToken storedToken = new RefreshToken(REFRESH_TOKEN, EMAIL,
                 LocalDateTime.now().plusDays(7));
         when(jwtUtil.isTokenExpired(REFRESH_TOKEN)).thenReturn(false);
@@ -147,7 +147,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void deleteToken_whenCalled_shouldDelegateToRepository() {
+    void deleteTokenWhenCalledShouldDelegateToRepository() {
         authService.deleteToken(REFRESH_TOKEN);
 
         verify(refreshTokenRepository).deleteByToken(REFRESH_TOKEN);

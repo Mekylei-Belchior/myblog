@@ -111,7 +111,7 @@ Full stack details in `ai-context.md`. Architecture in `architecture.md`.
 - Every `@Service` method needs a unit test
 - `@ExtendWith(MockitoExtension.class)` for unit tests
 - `@SpringBootTest` + `@AutoConfigureMockMvc` for integration
-- Naming: `methodName_whenCondition_shouldExpectedBehavior`
+- Naming: `methodNameWhenConditionShouldExpectedBehavior`
 - Test: happy path, validation failure, not-found, unauthorized
 
 ### Configuration

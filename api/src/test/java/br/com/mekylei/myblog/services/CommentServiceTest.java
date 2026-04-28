@@ -47,7 +47,7 @@ class CommentServiceTest {
     }
 
     @Test
-    void createComment_whenNewsExists_shouldReturnCommentResponseDTO() {
+    void createCommentWhenNewsExistsShouldReturnCommentResponseDTO() {
         Comment savedComment = new Comment("Great article!", LocalDateTime.now(), "Commenter", news);
         savedComment.setId(1L);
 
@@ -65,7 +65,7 @@ class CommentServiceTest {
     }
 
     @Test
-    void createComment_whenNewsNotFound_shouldThrowNewsNotFoundException() {
+    void createCommentWhenNewsNotFoundShouldThrowNewsNotFoundException() {
         when(newsRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> commentService.createComment(99L, requestDTO))

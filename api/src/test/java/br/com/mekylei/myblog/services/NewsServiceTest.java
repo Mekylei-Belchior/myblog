@@ -48,7 +48,7 @@ class NewsServiceTest {
     }
 
     @Test
-    void createNews_whenValidData_shouldReturnNewsResponseDTO() {
+    void createNewsWhenValidDataShouldReturnNewsResponseDTO() {
         when(newsRepository.save(any(News.class))).thenReturn(news);
 
         NewsResponseDTO result = newsService.createNews(requestDTO);
@@ -60,7 +60,7 @@ class NewsServiceTest {
     }
 
     @Test
-    void updateNews_whenNewsExists_shouldReturnUpdatedNewsResponseDTO() {
+    void updateNewsWhenNewsExistsShouldReturnUpdatedNewsResponseDTO() {
         NewsRequestDTO updateRequest = new NewsRequestDTO("Updated Title", "Author", "Updated Content", List.of("tag2"));
         when(newsRepository.findById(1L)).thenReturn(Optional.of(news));
         when(newsRepository.save(any(News.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -73,7 +73,7 @@ class NewsServiceTest {
     }
 
     @Test
-    void updateNews_whenNewsNotFound_shouldThrowNewsNotFoundException() {
+    void updateNewsWhenNewsNotFoundShouldThrowNewsNotFoundException() {
         when(newsRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> newsService.updateNews(99L, requestDTO))
@@ -81,7 +81,7 @@ class NewsServiceTest {
     }
 
     @Test
-    void deleteNews_whenNewsExists_shouldReturnNewsResponseDTO() {
+    void deleteNewsWhenNewsExistsShouldReturnNewsResponseDTO() {
         when(newsRepository.findById(1L)).thenReturn(Optional.of(news));
 
         NewsResponseDTO result = newsService.deleteNews(1L);
@@ -92,7 +92,7 @@ class NewsServiceTest {
     }
 
     @Test
-    void deleteNews_whenNewsNotFound_shouldThrowNewsNotFoundException() {
+    void deleteNewsWhenNewsNotFoundShouldThrowNewsNotFoundException() {
         when(newsRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> newsService.deleteNews(99L))
@@ -100,19 +100,19 @@ class NewsServiceTest {
     }
 
     @Test
-    void getNews_whenNullTitle_shouldReturnPageOfNewsListDTO() {
+    void getNewsWhenNullTitleShouldReturnPageOfNewsListDTO() {
         Page<News> newsPage = new PageImpl<>(List.of(news));
         when(newsRepository.findAll(pageable)).thenReturn(newsPage);
 
         Page<NewsListDTO> result = newsService.getNews(pageable, null);
 
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).title()).isEqualTo("Title");
+        assertThat(result.getContent().getFirst().title()).isEqualTo("Title");
         verify(newsRepository).findAll(pageable);
     }
 
     @Test
-    void getNews_whenTitleProvided_shouldReturnFilteredPage() {
+    void getNewsWhenTitleProvidedShouldReturnFilteredPage() {
         Page<News> newsPage = new PageImpl<>(List.of(news));
         when(newsRepository.findByTitleContainingIgnoreCase(pageable, "Title"))
                 .thenReturn(Optional.of(newsPage));
@@ -124,7 +124,7 @@ class NewsServiceTest {
     }
 
     @Test
-    void getNews_whenTitleNotFound_shouldThrowNewsNotFoundByException() {
+    void getNewsWhenTitleNotFoundShouldThrowNewsNotFoundByException() {
         when(newsRepository.findByTitleContainingIgnoreCase(pageable, "unknown"))
                 .thenReturn(Optional.empty());
 
@@ -134,7 +134,7 @@ class NewsServiceTest {
     }
 
     @Test
-    void getNewsByTag_whenTagFound_shouldReturnPage() {
+    void getNewsByTagWhenTagFoundShouldReturnPage() {
         Page<News> newsPage = new PageImpl<>(List.of(news));
         when(newsRepository.findByTags(pageable, "tag1")).thenReturn(Optional.of(newsPage));
 
@@ -145,7 +145,7 @@ class NewsServiceTest {
     }
 
     @Test
-    void getNewsByTag_whenTagNotFound_shouldThrowNewsNotFoundByException() {
+    void getNewsByTagWhenTagNotFoundShouldThrowNewsNotFoundByException() {
         when(newsRepository.findByTags(pageable, "unknown")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> newsService.getNewsByTag(pageable, "unknown"))
@@ -154,7 +154,7 @@ class NewsServiceTest {
     }
 
     @Test
-    void getCompleteNews_whenNewsExists_shouldReturnNewsResponseDTO() {
+    void getCompleteNewsWhenNewsExistsShouldReturnNewsResponseDTO() {
         when(newsRepository.findById(1L)).thenReturn(Optional.of(news));
 
         NewsResponseDTO result = newsService.getCompleteNews(1L);
@@ -164,7 +164,7 @@ class NewsServiceTest {
     }
 
     @Test
-    void getCompleteNews_whenNewsNotFound_shouldThrowNewsNotFoundException() {
+    void getCompleteNewsWhenNewsNotFoundShouldThrowNewsNotFoundException() {
         when(newsRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> newsService.getCompleteNews(99L))
