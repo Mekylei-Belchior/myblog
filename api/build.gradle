@@ -2,6 +2,7 @@ plugins {
     id 'org.springframework.boot' version '3.4.3'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'java'
+    id 'jacoco'
 }
 
 group = 'br.com.mekylei'
@@ -36,8 +37,40 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    // Gera relatório JaCoCo automaticamente após cada execução de testes
+    finalizedBy tasks.named('jacocoTestReport')
 }
 
 tasks.bootJar {
     archiveFileName = "api-myblog.jar"
 }
+
+// ── JaCoCo ────────────────────────────────────────────────────────────────
+jacoco {
+    toolVersion = "0.8.11"   // compatível com Java 21 + Gradle 8.x
+}
+
+tasks.named('jacocoTestReport') {
+    dependsOn tasks.named('test')
+    reports {
+        xml.required  = false
+        html.required = true   // relatório HTML arquivado pelo Jenkins
+    }
+}
+
+// Quality Gate: falha o build se cobertura de linhas cair abaixo do mínimo.
+// Cobertura atual: ~49% — threshold em 0.45 para dar margem de segurança.
+// Roteiro de aumento: 0.45 → 0.55 → 0.65 → 0.80 (meta de produção = 80%)
+tasks.named('jacocoTestCoverageVerification') {
+    dependsOn tasks.named('jacocoTestReport')
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value   = 'COVEREDRATIO'
+                minimum = 0.45
+            }
+        }
+    }
+}
+

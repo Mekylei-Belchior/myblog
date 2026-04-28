@@ -1,25 +1,25 @@
-FROM eclipse-temurin:21-jdk-jammy AS build
-
-WORKDIR /app
-
-# Copia apenas os arquivos necessários para o build
-COPY gradlew build.gradle settings.gradle ./
-COPY gradle ./gradle
-# Copia o código-fonte da API
-COPY src ./src
-
-# Dá permissão de execução ao Gradle Wrapper
-RUN chmod +x gradlew
-
-# Executa o build da aplicação
-RUN ./gradlew bootJar
-
-# Etapa final: cria a imagem final menor apenas com o JAR
+# ─────────────────────────────────────────────────────────────────────────────
+# Runtime-only — o JAR é pré-compilado pelo CI (./gradlew bootJar no Jenkinsfile)
+# e copiado diretamente para a imagem final.
+#
+# Por que não usar multi-stage com Gradle dentro do Docker?
+#   - O JAR já foi compilado E testado pelo CI antes deste Dockerfile rodar
+#   - Multi-stage com Gradle compila o código novamente (double-build)
+#   - A imagem final conteria um JAR diferente do que foi testado
+#   - Elimina ~2-4min de build time por pipeline run
+#
+# Pré-requisito: api/build/libs/api-myblog.jar deve existir antes do docker build.
+# O Jenkinsfile garante isso via: ./gradlew test bootJar --no-daemon
+# ─────────────────────────────────────────────────────────────────────────────
 FROM eclipse-temurin:21-jre-jammy
+
 WORKDIR /app
 
-# Copia o JAR gerado na etapa anterior
-COPY --from=build /app/build/libs/*.jar app.jar
+# JAR pré-compilado pelo CI — relativo ao build context (api/)
+COPY build/libs/api-myblog.jar app.jar
 
-# Comando para rodar a aplicação
+# Usuário não-root: reduz superfície de ataque se o container for comprometido
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+USER appuser
+
 ENTRYPOINT ["java", "-jar", "app.jar"]

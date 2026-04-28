@@ -1,0 +1,9 @@
+# Test configuration — overrides application.yml during test execution only.
+# JWT_SECRET: base64-encoded test key (32 bytes = 256 bits, sufficient for HS256).
+# ⚠️  This is a NON-SECRET test fixture — do NOT use in any real environment.
+JWT_SECRET: dGVzdC1qd3Qtc2VjcmV0LW15YmxvZy10ZXN0cy1vbmx5
+
+spring:
+  flyway:
+    enabled: true
+
