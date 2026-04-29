@@ -791,6 +791,7 @@ def healthCheckApi(Map cfg) {
  * Implementa segurança shift-left: imagens com CVEs HIGH/CRITICAL
  * são rejeitadas antes de contaminar o registry privado.
  *
+ *
  * Estratégias:
  *   - Tag fixa (TRIVY_VERSION) — determinismo entre builds
  *   - Volume 'trivy-cache' — DB (~90MB) baixado uma vez, reutilizado
