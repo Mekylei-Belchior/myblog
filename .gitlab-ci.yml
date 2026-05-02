@@ -66,6 +66,10 @@ deploy:
     - docker compose
         -f "$PROJECT_DIR/docker-compose.yml"
         -f "$PROJECT_DIR/docker-compose.lab.yml"
+        down --remove-orphans || true
+    - docker compose
+        -f "$PROJECT_DIR/docker-compose.yml"
+        -f "$PROJECT_DIR/docker-compose.lab.yml"
         up -d
   only:
     - develop
