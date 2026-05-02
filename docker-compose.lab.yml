@@ -1,0 +1,40 @@
+services:
+  app-server:
+    image: registry.lab.home/root/myblog/api:latest
+    container_name: api-myblog
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    build: !reset null
+    ports: !reset []
+    networks:
+      - infra-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.myblog-api.rule=Host(`myblog.lab.home`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.myblog-api.entrypoints=websecure"
+      - "traefik.http.routers.myblog-api.tls=true"
+      - "traefik.http.routers.myblog-api.tls.certresolver=step-ca"
+      - "traefik.http.routers.myblog-api.service=myblog-api-svc"
+      - "traefik.http.services.myblog-api-svc.loadbalancer.server.port=8080"
+
+  app-client:
+    image: registry.lab.home/root/myblog/client:latest
+    container_name: client-myblog
+    restart: unless-stopped
+    build: !reset null
+    ports: !reset []
+    networks:
+      - infra-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.myblog-client.rule=Host(`myblog.lab.home`)"
+      - "traefik.http.routers.myblog-client.entrypoints=websecure"
+      - "traefik.http.routers.myblog-client.tls=true"
+      - "traefik.http.routers.myblog-client.tls.certresolver=step-ca"
+      - "traefik.http.routers.myblog-client.service=myblog-client-svc"
+      - "traefik.http.services.myblog-client-svc.loadbalancer.server.port=80"
+
+networks:
+  infra-net:
+    external: true

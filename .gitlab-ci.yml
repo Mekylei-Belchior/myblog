@@ -1,0 +1,58 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  REGISTRY: registry.lab.home
+  IMAGE_API: $REGISTRY/root/myblog/api
+  IMAGE_CLIENT: $REGISTRY/root/myblog/client
+
+build-api:
+  stage: build
+  image: docker:24
+  services:
+    - name: docker:24-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS" "$REGISTRY"
+  script:
+    - docker build -t "$IMAGE_API:$CI_COMMIT_SHA" -t "$IMAGE_API:latest" api/
+    - docker push "$IMAGE_API:$CI_COMMIT_SHA"
+    - docker push "$IMAGE_API:latest"
+  only:
+    - develop
+
+build-client:
+  stage: build
+  image: docker:24
+  services:
+    - name: docker:24-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS" "$REGISTRY"
+  script:
+    - docker build -t "$IMAGE_CLIENT:$CI_COMMIT_SHA" -t "$IMAGE_CLIENT:latest" client/
+    - docker push "$IMAGE_CLIENT:$CI_COMMIT_SHA"
+    - docker push "$IMAGE_CLIENT:latest"
+  only:
+    - develop
+
+deploy:
+  stage: deploy
+  image: curlimages/curl:latest
+  script:
+    - |
+      curl -f -X POST "$ARCANE_URL/api/deploy/myblog" \
+        -H "Authorization: Bearer $ARCANE_TOKEN" \
+        -H "Content-Type: application/json"
+  only:
+    - develop
+  needs:
+    - build-api
+    - build-client
