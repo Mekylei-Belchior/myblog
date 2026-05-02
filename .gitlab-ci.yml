@@ -52,12 +52,21 @@ build-client:
 
 deploy:
   stage: deploy
-  image: curlimages/curl:latest
+  image: docker:24
+  variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
+    PROJECT_DIR: /home/dell/workspace/projects/myblog
+  before_script:
+    - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS" "$REGISTRY"
   script:
-    - |
-      curl -f -X POST "$ARCANE_URL/api/deploy/myblog" \
-        -H "Authorization: Bearer $ARCANE_TOKEN" \
-        -H "Content-Type: application/json"
+    - docker compose
+        -f "$PROJECT_DIR/docker-compose.yml"
+        -f "$PROJECT_DIR/docker-compose.lab.yml"
+        pull app-server app-client
+    - docker compose
+        -f "$PROJECT_DIR/docker-compose.yml"
+        -f "$PROJECT_DIR/docker-compose.lab.yml"
+        up -d
   only:
     - develop
   needs:
