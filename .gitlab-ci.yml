@@ -10,12 +10,8 @@ variables:
 build-api:
   stage: build
   image: docker:24
-  services:
-    - name: docker:24-dind
-      alias: docker
   variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: unix:///var/run/docker.sock
   before_script:
     - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS" "$REGISTRY"
   script:
@@ -28,12 +24,8 @@ build-api:
 build-client:
   stage: build
   image: docker:24
-  services:
-    - name: docker:24-dind
-      alias: docker
   variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: unix:///var/run/docker.sock
   before_script:
     - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS" "$REGISTRY"
   script:
