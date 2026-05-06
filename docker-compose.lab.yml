@@ -38,6 +38,10 @@ services:
       - "traefik.http.routers.myblog-client.middlewares=secure-headers@file,rate-limit@file"
       - "traefik.http.services.myblog-client-svc.loadbalancer.server.port=80"
 
+  postgres:
+    ports:
+      - "5432:5432"
+
 networks:
   infra-net:
     external: true
