@@ -64,6 +64,8 @@ build:api:
 build:client:
   stage: build
   image: node:20-alpine
+  variables:
+    NODE_OPTIONS: "--openssl-legacy-provider"
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH
       changes: ["client/**/*", ".gitlab-ci.yml"]
