@@ -11,8 +11,8 @@ RUN --mount=type=cache,target=/root/.npm \
 # Copia o restante do código-fonte
 COPY . .
 
-# Executa o build do projeto
-RUN npm run build --configuration=production
+# Executa o build do projeto (NODE_OPTIONS necessário para webpack4/OpenSSL3 no Node 17+)
+RUN NODE_OPTIONS=--openssl-legacy-provider npm run build --configuration=production
 
 # Estágio final
 FROM nginx:alpine
