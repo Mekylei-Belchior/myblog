@@ -6,6 +6,31 @@ variables:
   TRIVY_VERSION: "0.63.0"
   GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
 
+# ─── DIAGNÓSTICO (TEMPORÁRIO — ISSUE-06) ─────────────────────────
+diagnose:kubectl:
+  stage: .pre
+  image: alpine/k8s:1.29.2
+  rules:
+    - if: $CI_COMMIT_BRANCH == "test/kubectl-connectivity"
+  script:
+    - mkdir -p ~/.kube
+    - cp "$KUBECONFIG" ~/.kube/config
+    - chmod 600 ~/.kube/config
+    - echo "=== kubectl version ==="
+    - kubectl version --client
+    - echo "=== Conectividade com API server ==="
+    - kubectl cluster-info
+    - echo "=== Namespaces ==="
+    - kubectl get namespaces
+    - echo "=== Secrets myblog ==="
+    - kubectl get secret myblog-secrets -n myblog-dev
+    - kubectl get secret myblog-secrets -n myblog
+    - echo "=== StorageClass ==="
+    - kubectl get sc
+    - echo "=== kustomize version ==="
+    - kustomize version
+    - echo "=== DIAGNÓSTICO OK ==="
+
 stages:
   - build
   - quality
