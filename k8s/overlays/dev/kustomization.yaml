@@ -6,8 +6,7 @@ namespace: myblog-dev
 resources:
   - namespace.yaml
   - ../../base
-
-namePrefix: dev-
+  - postgres.yaml
 
 configMapGenerator:
   - name: myblog-config

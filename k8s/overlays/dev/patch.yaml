@@ -1,7 +1,13 @@
-# Patch for dev: 1 replica, dev profile, relaxed resources
-- op: replace
-  path: /spec/template/spec/containers/0/env/0/value
-  value: "dev"
-- op: replace
-  path: /spec/replicas
-  value: 1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myblog-api
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: myblog-api
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "dev"

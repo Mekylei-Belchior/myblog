@@ -4,4 +4,4 @@ metadata:
   name: myblog-ingress
 spec:
   rules:
-    - host: myblog.192.168.0.106.nip.io
+    - host: myblog.lab.home

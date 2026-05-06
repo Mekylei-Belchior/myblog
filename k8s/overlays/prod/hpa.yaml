@@ -2,7 +2,6 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: myblog-api-hpa
-  namespace: myblog
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
