@@ -149,13 +149,18 @@ deploy:dev:
     url: https://dev.myblog.lab.home
   script:
     - kubectl get secret myblog-secrets -n myblog-dev
+    - kubectl create secret docker-registry gitlab-registry-secret
+        --docker-server=$REGISTRY
+        --docker-username=k8s-registry-pull
+        --docker-password=$REGISTRY_PULL_TOKEN
+        -n myblog-dev --dry-run=client -o yaml | kubectl apply -f -
     - cd k8s/overlays/dev
     - kustomize edit set image $API_IMAGE:$IMAGE_TAG
     - kustomize edit set image $CLIENT_IMAGE:$IMAGE_TAG
     - cd ../../..
     - kustomize build k8s/overlays/dev | kubectl apply -f -
-    - kubectl rollout status deployment/myblog-api -n myblog-dev --timeout=120s
-    - kubectl rollout status deployment/myblog-client -n myblog-dev --timeout=120s
+    - kubectl rollout status deployment/myblog-api -n myblog-dev --timeout=180s
+    - kubectl rollout status deployment/myblog-client -n myblog-dev --timeout=180s
     - |
       for i in $(seq 1 10); do
         STATUS=$(curl -sk https://dev.myblog.lab.home/actuator/health | grep -c '"UP"' || true)
@@ -191,6 +196,11 @@ deploy:prod:
     url: https://myblog.lab.home
   script:
     - kubectl get secret myblog-secrets -n myblog
+    - kubectl create secret docker-registry gitlab-registry-secret
+        --docker-server=$REGISTRY
+        --docker-username=k8s-registry-pull
+        --docker-password=$REGISTRY_PULL_TOKEN
+        -n myblog --dry-run=client -o yaml | kubectl apply -f -
     - cd k8s/overlays/prod
     - kustomize edit set image $API_IMAGE:$IMAGE_TAG
     - kustomize edit set image $CLIENT_IMAGE:$IMAGE_TAG

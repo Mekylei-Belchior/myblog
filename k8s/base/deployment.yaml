@@ -14,6 +14,8 @@ spec:
       labels:
         app: myblog-api
     spec:
+      imagePullSecrets:
+        - name: gitlab-registry-secret
       containers:
         - name: myblog-api
           image: registry.lab.home/pessoal/myblog/api:latest
@@ -81,6 +83,8 @@ spec:
       labels:
         app: myblog-client
     spec:
+      imagePullSecrets:
+        - name: gitlab-registry-secret
       containers:
         - name: myblog-client
           image: registry.lab.home/pessoal/myblog/client:latest
