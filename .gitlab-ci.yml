@@ -141,7 +141,11 @@ docker:client:
 deploy:dev:
   extends: .deploy_base
   stage: deploy-dev
-  needs: [docker:api, docker:client]
+  needs:
+    - job: docker:api
+      optional: true
+    - job: docker:client
+      optional: true
   rules:
     - if: $CI_COMMIT_BRANCH == "develop"
   environment:
@@ -173,7 +177,11 @@ deploy:dev:
 approve:prod:
   stage: deploy-prod
   image: alpine:latest
-  needs: [docker:api, docker:client]
+  needs:
+    - job: docker:api
+      optional: true
+    - job: docker:client
+      optional: true
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: manual
