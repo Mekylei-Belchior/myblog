@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: myblog-api
-          image: 192.168.0.106:5000/myblog/api:latest
+          image: registry.lab.home/pessoal/myblog/api:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -83,7 +83,7 @@ spec:
     spec:
       containers:
         - name: myblog-client
-          image: 192.168.0.106:5000/myblog/client:latest
+          image: registry.lab.home/pessoal/myblog/client:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80

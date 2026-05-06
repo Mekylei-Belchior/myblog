@@ -1,7 +1,6 @@
-# k3s insecure registry configuration
-# Deploy this to EACH k3s node at: /etc/rancher/k3s/registries.yaml
-# Then restart: sudo systemctl restart k3s
-mirrors:
-  "192.168.0.106:5000":
-    endpoint:
-      - "http://192.168.0.106:5000"
+# Configuração do registry para k3s
+# Copiar para: /etc/rancher/k3s/registries.yaml em cada node
+configs:
+  "registry.lab.home":
+    tls:
+      ca_file: /home/dell/workspace/infra/step-ca/root_ca.crt

@@ -20,3 +20,9 @@ patches:
       kind: Deployment
       name: myblog-api
   - path: ingress-patch.yaml
+
+images:
+  - name: registry.lab.home/pessoal/myblog/api
+    newTag: latest
+  - name: registry.lab.home/pessoal/myblog/client
+    newTag: latest
