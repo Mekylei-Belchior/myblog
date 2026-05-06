@@ -1,78 +1,205 @@
-stages:
-  - compile
-  - build
-  - deploy
-
 variables:
-  REGISTRY: registry.lab.home
-  IMAGE_API: $REGISTRY/root/myblog/api
-  IMAGE_CLIENT: $REGISTRY/root/myblog/client
+  REGISTRY: "registry.lab.home"
+  API_IMAGE: "$REGISTRY/pessoal/myblog/api"
+  CLIENT_IMAGE: "$REGISTRY/pessoal/myblog/client"
+  DOCKER_BUILDKIT: "1"
+  TRIVY_VERSION: "0.63.0"
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
 
-compile-api:
-  stage: compile
+stages:
+  - build
+  - quality
+  - docker
+  - deploy-dev
+  - deploy-prod
+
+# ─── BUILD — API ──────────────────────────────────────────────────
+build:api:
+  stage: build
   image: eclipse-temurin:21-jdk-jammy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH
+      changes: ["api/**/*", ".gitlab-ci.yml"]
+    - if: $FORCE_FULL_BUILD == "true"
+  cache:
+    key: "gradle-$CI_COMMIT_REF_SLUG"
+    paths: [.gradle/caches/, api/build/]
   script:
-    - cd api && chmod +x gradlew && ./gradlew bootJar --no-daemon
+    - cd api
+    - chmod +x gradlew
+    - ./gradlew test bootJar --no-daemon --stacktrace
   artifacts:
-    paths:
-      - api/build/libs/
-    expire_in: 1 hour
-  only:
-    - develop
+    name: "api-$CI_COMMIT_SHORT_SHA"
+    paths: [api/build/libs/api-myblog.jar, api/build/test-results/, api/build/reports/]
+    reports:
+      junit: api/build/test-results/**/*.xml
+    expire_in: 1 day
 
-build-api:
+# ─── BUILD — CLIENT ───────────────────────────────────────────────
+build:client:
   stage: build
-  image: docker:24
-  variables:
-    DOCKER_HOST: unix:///var/run/docker.sock
-  needs:
-    - compile-api
-  before_script:
-    - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS" "$REGISTRY"
+  image: node:20-alpine
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH
+      changes: ["client/**/*", ".gitlab-ci.yml"]
+    - if: $FORCE_FULL_BUILD == "true"
+  cache:
+    key: "npm-$CI_COMMIT_REF_SLUG"
+    paths: [client/node_modules/]
   script:
-    - docker build -t "$IMAGE_API:$CI_COMMIT_SHA" -t "$IMAGE_API:latest" api/
-    - docker push "$IMAGE_API:$CI_COMMIT_SHA"
-    - docker push "$IMAGE_API:latest"
-  only:
-    - develop
+    - cd client
+    - npm ci --legacy-peer-deps
+    - npm run build -- --configuration=production
+  artifacts:
+    name: "client-$CI_COMMIT_SHORT_SHA"
+    paths: [client/dist/]
+    expire_in: 1 day
 
-build-client:
-  stage: build
-  image: docker:24
-  variables:
-    DOCKER_HOST: unix:///var/run/docker.sock
-  before_script:
-    - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS" "$REGISTRY"
+# ─── QUALITY GATE ─────────────────────────────────────────────────
+quality:coverage:
+  stage: quality
+  image: eclipse-temurin:21-jdk-jammy
+  needs: [build:api]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH
+      changes: ["api/**/*"]
+    - if: $FORCE_FULL_BUILD == "true"
+  cache:
+    key: "gradle-$CI_COMMIT_REF_SLUG"
+    paths: [.gradle/caches/]
   script:
-    - docker build -t "$IMAGE_CLIENT:$CI_COMMIT_SHA" -t "$IMAGE_CLIENT:latest" client/
-    - docker push "$IMAGE_CLIENT:$CI_COMMIT_SHA"
-    - docker push "$IMAGE_CLIENT:latest"
-  only:
-    - develop
+    - cd api
+    - chmod +x gradlew
+    - ./gradlew jacocoTestCoverageVerification --no-daemon
+  artifacts:
+    paths: [api/build/reports/jacoco/]
+    expire_in: 7 days
+    when: always
 
-deploy:
-  stage: deploy
-  image: docker:24
+# ─── DOCKER BASE ──────────────────────────────────────────────────
+.docker_base:
+  stage: docker
+  image: docker:26
+  services: [docker:26-dind]
   variables:
-    DOCKER_HOST: unix:///var/run/docker.sock
-    PROJECT_DIR: /home/dell/workspace/projects/myblog
+    DOCKER_TLS_CERTDIR: ""
+    IMAGE_TAG: "$CI_PIPELINE_IID-$CI_COMMIT_SHORT_SHA"
   before_script:
-    - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS" "$REGISTRY"
+    - echo "$REGISTRY_PASS" | docker login https://$REGISTRY -u "$REGISTRY_USER" --password-stdin
+  after_script:
+    - docker logout $REGISTRY || true
+
+docker:api:
+  extends: .docker_base
+  needs: [build:api, quality:coverage]
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(main|develop|release\/.+)$/
+      changes: ["api/**/*"]
+    - if: $CI_COMMIT_BRANCH =~ /^(main|develop)$/ && $FORCE_FULL_BUILD == "true"
   script:
-    - docker compose
-        -f "$PROJECT_DIR/docker-compose.yml"
-        -f "$PROJECT_DIR/docker-compose.lab.yml"
-        pull app-server app-client
-    - docker compose
-        -f "$PROJECT_DIR/docker-compose.yml"
-        -f "$PROJECT_DIR/docker-compose.lab.yml"
-        down --remove-orphans || true
-    - docker compose
-        -f "$PROJECT_DIR/docker-compose.yml"
-        -f "$PROJECT_DIR/docker-compose.lab.yml"
-        up -d
-  only:
-    - develop
-  needs:
-    - build-api
-    - build-client
+    - docker pull $API_IMAGE:latest || true
+    - docker build --cache-from $API_IMAGE:latest --build-arg BUILDKIT_INLINE_CACHE=1 -t $API_IMAGE:$IMAGE_TAG -f api/Dockerfile api/
+    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:$TRIVY_VERSION image --exit-code 1 --severity HIGH,CRITICAL $API_IMAGE:$IMAGE_TAG
+    - docker push $API_IMAGE:$IMAGE_TAG
+    - docker tag $API_IMAGE:$IMAGE_TAG $API_IMAGE:latest && docker push $API_IMAGE:latest
+    - echo "IMAGE_TAG=$IMAGE_TAG" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+
+docker:client:
+  extends: .docker_base
+  needs: [build:client]
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(main|develop|release\/.+)$/
+      changes: ["client/**/*"]
+    - if: $CI_COMMIT_BRANCH =~ /^(main|develop)$/ && $FORCE_FULL_BUILD == "true"
+  script:
+    - docker pull $CLIENT_IMAGE:latest || true
+    - docker build --cache-from $CLIENT_IMAGE:latest --build-arg BUILDKIT_INLINE_CACHE=1 -t $CLIENT_IMAGE:$IMAGE_TAG -f client/Dockerfile client/
+    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:$TRIVY_VERSION image --exit-code 1 --severity HIGH,CRITICAL $CLIENT_IMAGE:$IMAGE_TAG
+    - docker push $CLIENT_IMAGE:$IMAGE_TAG
+    - docker tag $CLIENT_IMAGE:$IMAGE_TAG $CLIENT_IMAGE:latest && docker push $CLIENT_IMAGE:latest
+    - echo "IMAGE_TAG=$IMAGE_TAG" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+
+# ─── DEPLOY BASE ──────────────────────────────────────────────────
+.deploy_base:
+  image: alpine/k8s:1.29.2
+  before_script:
+    - mkdir -p ~/.kube
+    - cp "$KUBECONFIG" ~/.kube/config
+    - chmod 600 ~/.kube/config
+    - kubectl version --client
+    - kustomize version
+
+# ─── DEPLOY DEV ───────────────────────────────────────────────────
+deploy:dev:
+  extends: .deploy_base
+  stage: deploy-dev
+  needs: [docker:api, docker:client]
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+  environment:
+    name: dev
+    url: https://dev.myblog.lab.home
+  script:
+    - kubectl get secret myblog-secrets -n myblog-dev
+    - cd k8s/overlays/dev
+    - kustomize edit set image $API_IMAGE:$IMAGE_TAG
+    - kustomize edit set image $CLIENT_IMAGE:$IMAGE_TAG
+    - cd ../../..
+    - kustomize build k8s/overlays/dev | kubectl apply -f -
+    - kubectl rollout status deployment/myblog-api -n myblog-dev --timeout=120s
+    - kubectl rollout status deployment/myblog-client -n myblog-dev --timeout=120s
+    - |
+      for i in $(seq 1 10); do
+        STATUS=$(curl -sk https://dev.myblog.lab.home/actuator/health | grep -c '"UP"' || true)
+        [ "$STATUS" -gt 0 ] && echo "API dev healthy" && exit 0
+        echo "Aguardando API dev... $i/10"; sleep 12
+      done
+      echo "API não respondeu. Verificar logs." && exit 1
+
+# ─── APROVAÇÃO MANUAL ─────────────────────────────────────────────
+approve:prod:
+  stage: deploy-prod
+  image: alpine:latest
+  needs: [docker:api, docker:client]
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual
+  environment:
+    name: prod
+    action: prepare
+  script:
+    - echo "Deploy para prod aprovado por $GITLAB_USER_LOGIN"
+
+# ─── DEPLOY PROD ──────────────────────────────────────────────────
+deploy:prod:
+  extends: .deploy_base
+  stage: deploy-prod
+  needs: [approve:prod]
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
+  environment:
+    name: prod
+    url: https://myblog.lab.home
+  script:
+    - kubectl get secret myblog-secrets -n myblog
+    - cd k8s/overlays/prod
+    - kustomize edit set image $API_IMAGE:$IMAGE_TAG
+    - kustomize edit set image $CLIENT_IMAGE:$IMAGE_TAG
+    - cd ../../..
+    - kustomize build k8s/overlays/prod | kubectl apply -f -
+    - kubectl rollout status deployment/myblog-api -n myblog --timeout=180s
+    - kubectl rollout status deployment/myblog-client -n myblog --timeout=180s
+    - |
+      for i in $(seq 1 12); do
+        STATUS=$(curl -sk https://myblog.lab.home/actuator/health | grep -c '"UP"' || true)
+        [ "$STATUS" -gt 0 ] && echo "API prod healthy" && exit 0
+        echo "Aguardando API prod... $i/12"; sleep 15
+      done
+      echo "API não respondeu. Verificar logs." && exit 1
