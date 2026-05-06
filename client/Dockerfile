@@ -16,6 +16,8 @@ RUN NODE_OPTIONS=--openssl-legacy-provider npm run build --configuration=product
 
 # Estágio final
 FROM nginx:alpine
+# Atualiza pacotes do sistema para corrigir CVEs (ex: nghttp2-libs CVE-2026-27135)
+RUN apk upgrade --no-cache
 WORKDIR /usr/share/nginx/html
 
 # Copia os arquivos buildados do estágio anterior
