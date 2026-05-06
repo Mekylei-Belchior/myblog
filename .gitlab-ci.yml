@@ -163,7 +163,7 @@ deploy:dev:
     - kubectl rollout status deployment/myblog-client -n myblog-dev --timeout=180s
     - |
       for i in $(seq 1 10); do
-        STATUS=$(curl -sk https://dev.myblog.lab.home/actuator/health | grep -c '"UP"' || true)
+        STATUS=$(curl -sk https://dev.myblog.lab.home/api/actuator/health | grep -c '"UP"' || true)
         [ "$STATUS" -gt 0 ] && echo "API dev healthy" && exit 0
         echo "Aguardando API dev... $i/10"; sleep 12
       done
@@ -210,7 +210,7 @@ deploy:prod:
     - kubectl rollout status deployment/myblog-client -n myblog --timeout=180s
     - |
       for i in $(seq 1 12); do
-        STATUS=$(curl -sk https://myblog.lab.home/actuator/health | grep -c '"UP"' || true)
+        STATUS=$(curl -sk https://myblog.lab.home/api/actuator/health | grep -c '"UP"' || true)
         [ "$STATUS" -gt 0 ] && echo "API prod healthy" && exit 0
         echo "Aguardando API prod... $i/12"; sleep 15
       done
