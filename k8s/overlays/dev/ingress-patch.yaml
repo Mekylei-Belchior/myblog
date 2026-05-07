@@ -14,8 +14,8 @@ spec:
                 name: myblog-api-svc
                 port:
                   number: 8080
-          - path: /
-            pathType: Prefix
+          - path: /()(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: myblog-client-svc
