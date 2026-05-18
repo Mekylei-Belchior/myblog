@@ -6,6 +6,7 @@ namespace: myblog
 resources:
   - namespace.yaml
   - ../../base
+  - postgres.yaml
   - hpa.yaml
   - pdb.yaml
 
@@ -22,7 +23,7 @@ patches:
   - path: ingress-patch.yaml
 
 images:
-  - name: 192.168.0.106:5000/myblog/api
+  - name: registry.lab.home/pessoal/myblog/api
     newTag: latest
-  - name: 192.168.0.106:5000/myblog/client
+  - name: registry.lab.home/pessoal/myblog/client
     newTag: latest

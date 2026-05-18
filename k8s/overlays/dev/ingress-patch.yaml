@@ -4,4 +4,20 @@ metadata:
   name: myblog-ingress
 spec:
   rules:
-    - host: myblog.192.168.0.106.nip.io
+    - host: dev.myblog.lab.home
+      http:
+        paths:
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: myblog-api-svc
+                port:
+                  number: 8080
+          - path: /()(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: myblog-client-svc
+                port:
+                  number: 80

@@ -1,0 +1,569 @@
+# ══════════════════════════════════════════════════════════════════
+# VARIÁVEIS GLOBAIS
+# Variáveis sensíveis esperadas como CI/CD Variables no GitLab:
+#   REGISTRY_USER        — usuário com permissão de push no registry
+#   REGISTRY_PASS        — senha/token do usuário de push
+#   REGISTRY_PULL_TOKEN  — token somente-leitura usado pelo Kubernetes
+#   ARCHLAB_CA_CERT      — conteúdo PEM completo do certificado da CA interna
+#                          (tipo Variable, não File — inclui as linhas BEGIN/END)
+#   KUBECONFIG           — arquivo kubeconfig (tipo File) para acesso ao cluster
+# ══════════════════════════════════════════════════════════════════
+variables:
+  REGISTRY: "registry.lab.home"
+  API_IMAGE: "$REGISTRY/pessoal/myblog/api"
+  CLIENT_IMAGE: "$REGISTRY/pessoal/myblog/client"
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+  # Tag imutável por pipeline: <iid>-<sha curto>
+  IMAGE_TAG: "$CI_PIPELINE_IID-$CI_COMMIT_SHORT_SHA"
+
+stages:
+  - build
+  - quality
+  - docker
+  - scan
+  - tag
+  - deploy-dev
+  - deploy-prod
+
+# ══════════════════════════════════════════════════════════════════
+# TEMPLATES DE REGRAS
+#
+# Regra canônica para jobs de API: todos os jobs do componente API
+# usam exatamente as mesmas condições para garantir que build → quality
+# → docker → scan → tag sejam sempre acionados em conjunto.
+#
+# FIX: regras anteriores eram inconsistentes:
+#  - build:api incluía .gitlab-ci.yml nas changes; quality:coverage não.
+#    Isso fazia quality:coverage ser pulado quando apenas o CI mudava,
+#    bloqueando docker:api (que depende de quality:coverage).
+#  - FORCE_FULL_BUILD estava restrito a main/develop; agora cobre release/* também.
+#  - docker:api não incluía .gitlab-ci.yml, criando divergência com build:api.
+# ══════════════════════════════════════════════════════════════════
+
+# Jobs de API disparam quando: push para branch válida E mudanças em api/ ou CI,
+# OU quando FORCE_FULL_BUILD=true em branch válida (ignora filtro de changes).
+.rules_api:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH =~ /^(main|develop|release\/.+)$/'
+      changes: ["api/**/*", ".gitlab-ci.yml"]
+    - if: '$FORCE_FULL_BUILD == "true" && $CI_COMMIT_BRANCH =~ /^(main|develop|release\/.+)$/'
+
+# Jobs de build/quality da API podem rodar em qualquer branch (para validação em PRs).
+.rules_api_build:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH'
+      changes: ["api/**/*", ".gitlab-ci.yml"]
+    - if: '$FORCE_FULL_BUILD == "true" && $CI_COMMIT_BRANCH =~ /^(main|develop|release\/.+)$/'
+
+# Jobs de Client disparam quando: push para branch válida E mudanças em client/ ou CI,
+# OU quando FORCE_FULL_BUILD=true em branch válida.
+.rules_client:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH =~ /^(main|develop|release\/.+)$/'
+      changes: ["client/**/*", ".gitlab-ci.yml"]
+    - if: '$FORCE_FULL_BUILD == "true" && $CI_COMMIT_BRANCH =~ /^(main|develop|release\/.+)$/'
+
+# Jobs de build do Client podem rodar em qualquer branch.
+.rules_client_build:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH'
+      changes: ["client/**/*", ".gitlab-ci.yml"]
+    - if: '$FORCE_FULL_BUILD == "true" && $CI_COMMIT_BRANCH =~ /^(main|develop|release\/.+)$/'
+
+# ══════════════════════════════════════════════════════════════════
+# TEMPLATES DE EXECUTOR
+# ══════════════════════════════════════════════════════════════════
+
+# Kaniko: build de imagem sem Docker socket nem modo privilegiado.
+#
+# FIX CRÍTICO (causa do erro de produção):
+#   O certificado da CA interna era referenciado em /etc/ssl/certs/archlab-ca.crt,
+#   caminho inexistente na imagem Kaniko. O executor retornava:
+#   "failed to load certificate ... no such file or directory"
+#
+#   Correção: o conteúdo do certificado é gravado em /kaniko/ssl/certs/
+#   (diretório nativo do Kaniko para CAs customizadas) a partir da variável
+#   $ARCHLAB_CA_CERT definida no GitLab CI.
+.kaniko_base:
+  stage: docker
+  image:
+    name: gcr.io/kaniko-project/executor:v1.23.2-debug
+    entrypoint: [""]
+  before_script:
+    # Autenticação no registry privado
+    - mkdir -p /kaniko/.docker
+    - printf '{"auths":{"https://%s":{"auth":"%s"}}}\n'
+        "$REGISTRY"
+        "$(printf '%s:%s' "$REGISTRY_USER" "$REGISTRY_PASS" | base64 | tr -d '\n')"
+        > /kaniko/.docker/config.json
+    # Instalar o certificado da CA interna no diretório nativo do Kaniko
+    - mkdir -p /kaniko/ssl/certs
+    - printf '%s\n' "$ARCHLAB_CA_CERT" > /kaniko/ssl/certs/archlab-ca.crt
+
+# Trivy: scan de vulnerabilidades em imagem no registry privado.
+#
+# FIX: a imagem aquasec/trivy monta /etc/ssl/certs/ como read-only,
+#      impossibilitando escrita direta no bundle do sistema.
+#      Solução: copia o bundle para /tmp, adiciona nosso CA e aponta
+#      SSL_CERT_FILE (variável de ambiente lida nativamente pelo Go)
+#      para esse arquivo. SSL_CERT_FILE é definida como variável de job
+#      para que fique disponível tanto no before_script quanto no script.
+.trivy_base:
+  stage: scan
+  image:
+    name: aquasec/trivy:0.63.0
+    entrypoint: [""]
+  variables:
+    SSL_CERT_FILE: /tmp/ca-bundle.crt
+  before_script:
+    - cp /etc/ssl/certs/ca-certificates.crt /tmp/ca-bundle.crt
+    - printf '%s\n' "$ARCHLAB_CA_CERT" >> /tmp/ca-bundle.crt
+
+# Crane: re-tagging de imagens sem Docker socket.
+#
+# FIX: mesmo problema do Trivy — /etc/ssl/certs/ é read-only.
+#      Mesma solução: bundle em /tmp + SSL_CERT_FILE como variável de job.
+.crane_base:
+  stage: tag
+  image:
+    name: gcr.io/go-containerregistry/crane:debug
+    entrypoint: [""]
+  variables:
+    SSL_CERT_FILE: /tmp/ca-bundle.crt
+  before_script:
+    - cp /etc/ssl/certs/ca-certificates.crt /tmp/ca-bundle.crt
+    - printf '%s\n' "$ARCHLAB_CA_CERT" >> /tmp/ca-bundle.crt
+    - crane auth login "$REGISTRY" -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
+
+# Deploy base: kubectl + kustomize via alpine/k8s.
+.deploy_base:
+  image: alpine/k8s:1.29.2
+  before_script:
+    - mkdir -p ~/.kube
+    - cp "$KUBECONFIG" ~/.kube/config
+    - chmod 600 ~/.kube/config
+    - kubectl version --client
+    - kustomize version
+
+# ══════════════════════════════════════════════════════════════════
+# BUILD — API
+# Compila o JAR e executa os testes. O artefato (JAR + relatórios)
+# é consumido pelos jobs docker:api e quality:coverage.
+# ══════════════════════════════════════════════════════════════════
+build:api:
+  extends: .rules_api_build
+  stage: build
+  image: eclipse-temurin:21-jdk-jammy
+  cache:
+    key: "gradle-$CI_COMMIT_REF_SLUG"
+    paths:
+      - .gradle/caches/
+      - api/build/
+    policy: pull-push
+  script:
+    - cd api
+    - chmod +x gradlew
+    - ./gradlew test bootJar --no-daemon --stacktrace
+  artifacts:
+    name: "api-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - api/build/libs/api-myblog.jar
+      - api/build/test-results/
+      - api/build/reports/
+    reports:
+      junit: api/build/test-results/**/*.xml
+    expire_in: 1 day
+
+# ══════════════════════════════════════════════════════════════════
+# BUILD — CLIENT
+# Valida que o build Angular compila sem erros. O artefato dist/
+# NÃO é usado pelo Dockerfile (que executa npm build internamente),
+# mas este job garante que falhas de compilação sejam detectadas
+# antes de iniciar o Kaniko.
+# ══════════════════════════════════════════════════════════════════
+build:client:
+  extends: .rules_client_build
+  stage: build
+  image: node:20-alpine
+  variables:
+    NODE_OPTIONS: "--openssl-legacy-provider"
+  cache:
+    key: "npm-$CI_COMMIT_REF_SLUG"
+    paths:
+      - client/node_modules/
+    policy: pull-push
+  script:
+    - cd client
+    - npm ci --legacy-peer-deps
+    - npm run build -- --configuration=production
+  artifacts:
+    name: "client-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - client/dist/
+    expire_in: 1 day
+
+# ══════════════════════════════════════════════════════════════════
+# QUALITY GATE — Cobertura de código (JaCoCo)
+#
+# FIX: regras agora são idênticas às de build:api (incluindo .gitlab-ci.yml
+#      nas changes). Antes, quality:coverage era pulado quando apenas o CI
+#      mudava, quebrando a cadeia: docker:api needs quality:coverage.
+# ══════════════════════════════════════════════════════════════════
+quality:coverage:
+  extends: .rules_api_build
+  stage: quality
+  image: eclipse-temurin:21-jdk-jammy
+  needs: [build:api]
+  cache:
+    key: "gradle-$CI_COMMIT_REF_SLUG"
+    paths:
+      - .gradle/caches/
+    # Somente leitura: build:api já fez push do cache compilado
+    policy: pull
+  script:
+    - cd api
+    - chmod +x gradlew
+    - ./gradlew jacocoTestCoverageVerification --no-daemon
+  artifacts:
+    paths:
+      - api/build/reports/jacoco/
+    expire_in: 7 days
+    when: always
+
+# ══════════════════════════════════════════════════════════════════
+# DOCKER — BUILD DE IMAGEM (Kaniko)
+#
+# FIX: dockerfile agora usa caminho absoluto ($CI_PROJECT_DIR/api/Dockerfile)
+#      em vez de caminho relativo ao cwd do runner ("api/Dockerfile"),
+#      evitando ambiguidade quando o contexto é passado como caminho absoluto.
+#
+# FIX: --registry-certificate aponta para /kaniko/ssl/certs/archlab-ca.crt
+#      (gravado no before_script do .kaniko_base).
+#
+# FIX: regras alinhadas com build:api e quality:coverage (mesmo filtro de
+#      changes, incluindo .gitlab-ci.yml; FORCE_FULL_BUILD cobre release/*).
+# ══════════════════════════════════════════════════════════════════
+docker:api:
+  extends:
+    - .kaniko_base
+    - .rules_api
+  needs: [build:api, quality:coverage]
+  script:
+    - /kaniko/executor
+        --context "$CI_PROJECT_DIR/api"
+        --dockerfile "$CI_PROJECT_DIR/api/Dockerfile"
+        --destination "$API_IMAGE:$IMAGE_TAG"
+        --cache=true
+        --cache-repo "$API_IMAGE/cache"
+        --build-arg BUILDKIT_INLINE_CACHE=1
+        --registry-certificate "$REGISTRY=/kaniko/ssl/certs/archlab-ca.crt"
+    - printf 'API_IMAGE_TAG=%s\n' "$IMAGE_TAG" > build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+    expire_in: 1 day
+
+docker:client:
+  extends:
+    - .kaniko_base
+    - .rules_client
+  needs: [build:client]
+  script:
+    - /kaniko/executor
+        --context "$CI_PROJECT_DIR/client"
+        --dockerfile "$CI_PROJECT_DIR/client/Dockerfile"
+        --destination "$CLIENT_IMAGE:$IMAGE_TAG"
+        --cache=true
+        --cache-repo "$CLIENT_IMAGE/cache"
+        --build-arg BUILDKIT_INLINE_CACHE=1
+        --registry-certificate "$REGISTRY=/kaniko/ssl/certs/archlab-ca.crt"
+    - printf 'CLIENT_IMAGE_TAG=%s\n' "$IMAGE_TAG" > build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+    expire_in: 1 day
+
+# ══════════════════════════════════════════════════════════════════
+# SCAN DE VULNERABILIDADES (Trivy)
+#
+# Bloqueia a pipeline se forem encontradas vulnerabilidades HIGH ou CRITICAL.
+# O job falha com exit-code 1; tag:* e deploy:* dependem deste job
+# (via cadeia de needs), portanto não prosseguem se o scan falhar.
+#
+# FIX: removido --insecure (que enviava credenciais em plain HTTP).
+#      O CA cert instalado no before_script do .trivy_base permite TLS correto.
+# ══════════════════════════════════════════════════════════════════
+scan:api:
+  extends:
+    - .trivy_base
+    - .rules_api
+  needs: [docker:api]
+  script:
+    - trivy image
+        --exit-code 1
+        --severity HIGH,CRITICAL
+        --username "$REGISTRY_USER"
+        --password "$REGISTRY_PASS"
+        "$API_IMAGE:$IMAGE_TAG"
+
+scan:client:
+  extends:
+    - .trivy_base
+    - .rules_client
+  needs: [docker:client]
+  script:
+    - trivy image
+        --exit-code 1
+        --severity HIGH,CRITICAL
+        --username "$REGISTRY_USER"
+        --password "$REGISTRY_PASS"
+        "$CLIENT_IMAGE:$IMAGE_TAG"
+
+# ══════════════════════════════════════════════════════════════════
+# PROMOÇÃO DE TAG :latest (Crane)
+#
+# Executa SOMENTE se o scan passou. Promove a imagem versionada para :latest
+# no registry privado. O deploy usa a tag versionada ($IMAGE_TAG), não :latest,
+# portanto este job não bloqueia o deploy — mas está na cadeia de needs dos
+# jobs de aprovação/deploy para garantir que :latest só exista se tudo passou.
+#
+# FIX: removido --insecure do crane copy (TLS agora funciona via CA cert).
+# ══════════════════════════════════════════════════════════════════
+tag:api:
+  extends:
+    - .crane_base
+    - .rules_api
+  needs: [scan:api]
+  script:
+    - crane copy "$API_IMAGE:$IMAGE_TAG" "$API_IMAGE:latest"
+
+tag:client:
+  extends:
+    - .crane_base
+    - .rules_client
+  needs: [scan:client]
+  script:
+    - crane copy "$CLIENT_IMAGE:$IMAGE_TAG" "$CLIENT_IMAGE:latest"
+
+# ══════════════════════════════════════════════════════════════════
+# DEPLOY — DEV (automático no branch develop)
+#
+# Lógica de tag de imagem:
+#   1. Se docker:api rodou nesta pipeline → usa $API_IMAGE_TAG do dotenv.
+#   2. Se docker:api foi pulado (sem mudanças na API) → consulta a tag
+#      atualmente deployada via kubectl e reutiliza.
+#   3. Se nenhuma das duas opções resolver → falha explicitamente.
+#      Isso previne deploy com tag vazia ou inválida.
+#
+# FIX: falha explícita quando a tag não pode ser determinada.
+#      Antes, o shell silenciava erros com "|| true" e a tag ficava vazia,
+#      fazendo o kustomize gerar um manifest inválido sem falhar.
+#
+# FIX: adicionado tag:api e tag:client nos needs (optional) para garantir
+#      que o deploy só prossiga quando toda a cadeia build→scan→tag passou.
+#      Como os needs são optional, um push sem mudanças em API/Client
+#      não bloqueia o deploy.
+# ══════════════════════════════════════════════════════════════════
+deploy:dev:
+  extends: .deploy_base
+  stage: deploy-dev
+  needs:
+    # Dotenv com API_IMAGE_TAG (se docker:api rodou nesta pipeline)
+    - job: docker:api
+      optional: true
+    # Dotenv com CLIENT_IMAGE_TAG (se docker:client rodou nesta pipeline)
+    - job: docker:client
+      optional: true
+    # Gate de segurança: se scan rodou e falhou, tag também falha e o deploy é bloqueado
+    - job: tag:api
+      optional: true
+      artifacts: false
+    - job: tag:client
+      optional: true
+      artifacts: false
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+  environment:
+    name: dev
+    url: https://dev.myblog.lab.home
+  script:
+    # Verificar pré-requisito: secret de configuração deve existir no namespace
+    - kubectl get secret myblog-secrets -n myblog-dev
+    # Garantir secret de pull do registry (idempotente via dry-run + apply)
+    - |
+      kubectl create secret docker-registry gitlab-registry-secret \
+        --docker-server="$REGISTRY" \
+        --docker-username=k8s-registry-pull \
+        --docker-password="$REGISTRY_PULL_TOKEN" \
+        -n myblog-dev --dry-run=client -o yaml | kubectl apply -f -
+    # Resolver tag da API: nova (dotenv) ou atualmente deployada (fallback)
+    - |
+      if [ -z "$API_IMAGE_TAG" ]; then
+        API_IMAGE_TAG=$(kubectl get deployment myblog-api -n myblog-dev \
+          -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null \
+          | awk -F: '{print $NF}')
+        if [ -z "$API_IMAGE_TAG" ]; then
+          echo "ERRO: tag da imagem API não determinada — nenhum build gerado e nenhum deployment existente." >&2
+          exit 1
+        fi
+        echo "API: reutilizando tag deployada: $API_IMAGE_TAG"
+      else
+        echo "API: nova tag desta pipeline: $API_IMAGE_TAG"
+      fi
+    # Resolver tag do Client: nova (dotenv) ou atualmente deployada (fallback)
+    - |
+      if [ -z "$CLIENT_IMAGE_TAG" ]; then
+        CLIENT_IMAGE_TAG=$(kubectl get deployment myblog-client -n myblog-dev \
+          -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null \
+          | awk -F: '{print $NF}')
+        if [ -z "$CLIENT_IMAGE_TAG" ]; then
+          echo "ERRO: tag da imagem Client não determinada — nenhum build gerado e nenhum deployment existente." >&2
+          exit 1
+        fi
+        echo "Client: reutilizando tag deployada: $CLIENT_IMAGE_TAG"
+      else
+        echo "Client: nova tag desta pipeline: $CLIENT_IMAGE_TAG"
+      fi
+    # Atualizar tags no kustomization.yaml local (não persiste no repo — apenas no workspace do runner)
+    - cd k8s/overlays/dev
+    - kustomize edit set image "$API_IMAGE:$API_IMAGE_TAG"
+    - kustomize edit set image "$CLIENT_IMAGE:$CLIENT_IMAGE_TAG"
+    - cd ../../..
+    - kustomize build k8s/overlays/dev | kubectl apply -f -
+    # Aguardar rollout de ambos os deployments
+    - kubectl rollout status deployment/myblog-api -n myblog-dev --timeout=180s
+    - kubectl rollout status deployment/myblog-client -n myblog-dev --timeout=180s
+    # Health check da API via actuator
+    - |
+      for i in $(seq 1 10); do
+        STATUS=$(kubectl exec deployment/myblog-api -n myblog-dev -- \
+          wget -qO- http://localhost:8080/actuator/health 2>/dev/null \
+          | grep -c '"UP"' || true)
+        if [ "$STATUS" -gt 0 ]; then
+          echo "API dev healthy após $i tentativa(s)"
+          exit 0
+        fi
+        echo "Aguardando API dev... $i/10"
+        sleep 12
+      done
+      echo "ERRO: API dev não respondeu ao health check após 120s. Verifique os logs." >&2
+      exit 1
+
+# ══════════════════════════════════════════════════════════════════
+# APROVAÇÃO MANUAL — PROD
+#
+# Gate obrigatório antes do deploy em produção.
+# allow_failure: false garante que a pipeline fique em estado "blocked"
+# (não "warning") até que um usuário autorizado acione o job manualmente.
+#
+# FIX: adicionado allow_failure: false explicitamente.
+#      Sem isso, o GitLab trata manual jobs com allow_failure: true por padrão,
+#      o que faz a pipeline continuar "verde" sem aprovação real.
+#
+# FIX: adicionado tag:* nos needs para garantir que o botão de aprovação
+#      só apareça após scan + tagging completos.
+# ══════════════════════════════════════════════════════════════════
+approve:prod:
+  stage: deploy-prod
+  image: alpine:latest
+  needs:
+    - job: docker:api
+      optional: true
+    - job: docker:client
+      optional: true
+    - job: tag:api
+      optional: true
+      artifacts: false
+    - job: tag:client
+      optional: true
+      artifacts: false
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
+      allow_failure: false
+  environment:
+    name: prod
+    action: prepare
+  script:
+    - echo "Deploy para prod aprovado por $GITLAB_USER_LOGIN em $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+
+# ══════════════════════════════════════════════════════════════════
+# DEPLOY — PROD (após aprovação manual)
+# ══════════════════════════════════════════════════════════════════
+deploy:prod:
+  extends: .deploy_base
+  stage: deploy-prod
+  needs:
+    - job: approve:prod
+    # Dotenv com tags de imagem (se os componentes foram buildados nesta pipeline)
+    - job: docker:api
+      optional: true
+    - job: docker:client
+      optional: true
+    # Gate: bloqueia se scan/tag falharam
+    - job: tag:api
+      optional: true
+      artifacts: false
+    - job: tag:client
+      optional: true
+      artifacts: false
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_success
+  environment:
+    name: prod
+    url: https://myblog.lab.home
+  script:
+    - kubectl get secret myblog-secrets -n myblog
+    - |
+      kubectl create secret docker-registry gitlab-registry-secret \
+        --docker-server="$REGISTRY" \
+        --docker-username=k8s-registry-pull \
+        --docker-password="$REGISTRY_PULL_TOKEN" \
+        -n myblog --dry-run=client -o yaml | kubectl apply -f -
+    - |
+      if [ -z "$API_IMAGE_TAG" ]; then
+        API_IMAGE_TAG=$(kubectl get deployment myblog-api -n myblog \
+          -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null \
+          | awk -F: '{print $NF}')
+        if [ -z "$API_IMAGE_TAG" ]; then
+          echo "ERRO: tag da imagem API não determinada." >&2
+          exit 1
+        fi
+        echo "API: reutilizando tag deployada: $API_IMAGE_TAG"
+      else
+        echo "API: nova tag desta pipeline: $API_IMAGE_TAG"
+      fi
+    - |
+      if [ -z "$CLIENT_IMAGE_TAG" ]; then
+        CLIENT_IMAGE_TAG=$(kubectl get deployment myblog-client -n myblog \
+          -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null \
+          | awk -F: '{print $NF}')
+        if [ -z "$CLIENT_IMAGE_TAG" ]; then
+          echo "ERRO: tag da imagem Client não determinada." >&2
+          exit 1
+        fi
+        echo "Client: reutilizando tag deployada: $CLIENT_IMAGE_TAG"
+      else
+        echo "Client: nova tag desta pipeline: $CLIENT_IMAGE_TAG"
+      fi
+    - cd k8s/overlays/prod
+    - kustomize edit set image "$API_IMAGE:$API_IMAGE_TAG"
+    - kustomize edit set image "$CLIENT_IMAGE:$CLIENT_IMAGE_TAG"
+    - cd ../../..
+    - kustomize build k8s/overlays/prod | kubectl apply -f -
+    - kubectl rollout status deployment/myblog-api -n myblog --timeout=180s
+    - kubectl rollout status deployment/myblog-client -n myblog --timeout=180s
+    - |
+      for i in $(seq 1 12); do
+        STATUS=$(curl -sk https://myblog.lab.home/api/actuator/health \
+          | grep -c '"UP"' || true)
+        if [ "$STATUS" -gt 0 ]; then
+          echo "API prod healthy após $i tentativa(s)"
+          exit 0
+        fi
+        echo "Aguardando API prod... $i/12"
+        sleep 15
+      done
+      echo "ERRO: API prod não respondeu ao health check após 180s. Verifique os logs." >&2
+      exit 1
